@@ -10,6 +10,27 @@ import yfinance as yf
 import strategies
 from registry import SCREENER_REGISTRY
 import config
+import threading
+
+DATA_DIR = "data"
+IGNORE_FILE = "ignored_tickers.txt"
+os.makedirs(DATA_DIR, exist_ok=True)
+
+ignore_lock = threading.Lock()
+
+def get_ignored_tickers() -> set:
+    if os.path.exists(IGNORE_FILE):
+        with open(IGNORE_FILE, "r") as f:
+            return set(line.strip() for line in f if line.strip())
+    return set()
+
+def add_to_ignore_list(ticker: str):
+    with ignore_lock:
+        # Extra check to prevent duplicate writes during threading
+        current = get_ignored_tickers()
+        if ticker not in current:
+            with open(IGNORE_FILE, "a") as f:
+                f.write(f"{ticker}\n")
 
 # Dynamically import all strategy modules
 for _, module_name, _ in pkgutil.iter_modules(strategies.__path__):
@@ -20,79 +41,81 @@ for _, module_name, _ in pkgutil.iter_modules(strategies.__path__):
 # ---------------------------------------------------------
 def get_all_tickers() -> list[str]:
     try:
-        url = "https://www.sec.gov/files/company_tickers.json"
-        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
-        response = requests.get(url, headers=headers, timeout=10)
-        data = response.json()
-        tickers = list(set([item["ticker"] for item in data.values()]))
-        return sorted(tickers)
+        df = pd.read_csv("stocks_universe.csv")
+        base_tickers = pd.Series(df.iloc[:, 0]).dropna().astype(str).tolist()
+        ignored = get_ignored_tickers()
+        return [t for t in base_tickers if t not in ignored]
     except Exception as e:
-        print(f"Fallback triggered ({e}). Using liquid base tickers.")
+        print(f"Error reading universe: {e}")
         return ["AAPL", "MSFT", "NVDA", "AMZN", "META", "TSLA", "AMD", "NFLX"]
 
 # ---------------------------------------------------------
-# 2. STOCK EVALUATION
+# 3. STOCK EVALUATION (Strategy Only)
 # ---------------------------------------------------------
-def evaluate_stock(ticker: str) -> list[dict]:
+def evaluate_stock(ticker: str, bulk_update: pd.DataFrame = None) -> list[dict]:
     results = []
     try:
-        stock = yf.Ticker(ticker)
-        
-        # 1. Market Cap Filter
-        try:
-            # yfinance fast_info changed between versions, some use property, some use key
-            if hasattr(stock.fast_info, 'market_cap'):
-                market_cap = stock.fast_info.market_cap
-            elif hasattr(stock.fast_info, 'get'):
-                market_cap = stock.fast_info.get("marketCap", stock.fast_info.get("market_cap", 0))
-            else:
-                market_cap = stock.fast_info["marketCap"]
-        except Exception:
+        hist_file = os.path.join(DATA_DIR, f"cache_{ticker}.csv")
+        df_daily = pd.DataFrame()
+
+        # 1. Try to load local history
+        if os.path.exists(hist_file):
             try:
-                market_cap = stock.info.get("marketCap", 0)
+                df_daily = pd.read_csv(hist_file, index_col="Date", parse_dates=True)
             except Exception:
-                market_cap = 0
-            
-        if market_cap < config.UNIVERSE_FILTERS["min_market_cap"]:
-            return results
-
-        # Fetch Data
-        df_daily = stock.history(period="3y", interval="1d", auto_adjust=True)
+                pass
+        
+        # 2. Extract recent bulk data for this ticker (fast update)
+        new_data = pd.DataFrame()
+        if bulk_update is not None and not bulk_update.empty:
+            try:
+                if isinstance(bulk_update.columns, pd.MultiIndex):
+                    # Safely extract regardless of whether yfinance groups by (Price, Ticker) or (Ticker, Price)
+                    if ticker in bulk_update.columns.get_level_values(1):
+                        new_data = bulk_update.xs(ticker, axis=1, level=1)
+                    elif ticker in bulk_update.columns.get_level_values(0):
+                        new_data = bulk_update.xs(ticker, axis=1, level=0)
+                else:
+                    new_data = bulk_update
+                new_data = new_data.dropna(how="all")
+            except Exception:
+                pass
+        
+        # 3. Combine or download full history if missing
+        previous_latest_date = df_daily.index[-1] if not df_daily.empty else None
+        
+        if df_daily.empty:
+            # First time run (or corrupted CSV): pull full 3y history
+            df_daily = yf.download(ticker, period="3y", interval="1d", progress=False, auto_adjust=True)
+            if df_daily.empty:
+                # Automatically blacklist delisted/dead tickers so we never query them again
+                add_to_ignore_list(ticker)
+                return results
+                
+            if isinstance(df_daily.columns, pd.MultiIndex):
+                df_daily.columns = df_daily.columns.get_level_values(0)
+            df_daily.index.name = "Date"
+            df_daily.to_csv(hist_file)
+        elif not new_data.empty:
+            # We have local history and new delta data to compress and merge
+            df_daily = pd.concat([df_daily, new_data])
+            df_daily = df_daily[~df_daily.index.duplicated(keep="last")].sort_index()
+            df_daily = df_daily.tail(750)  # Retain ~3 years
+            df_daily.to_csv(hist_file)
+        
         if df_daily.empty or len(df_daily) < 250:
-            return results
-
-        if isinstance(df_daily.columns, pd.MultiIndex):
-            df_daily.columns = df_daily.columns.get_level_values(0)
-
-        # 2. Price Filter
-        close_price = round(float(df_daily["Close"].iloc[-1]), 2)
-        if close_price <= config.UNIVERSE_FILTERS["min_price"]:
-            return results
-            
-        # 3. Volume Filter
-        avg_vol_20 = df_daily["Volume"].tail(20).mean()
-        if avg_vol_20 <= config.UNIVERSE_FILTERS["min_volume_20d"]:
             return results
 
         resample_rules = {"Open": "first", "High": "max", "Low": "min", "Close": "last", "Volume": "sum"}
         df_weekly = df_daily.resample("W-FRI").agg(resample_rules).dropna()
         df_monthly = df_daily.resample("ME").agg(resample_rules).dropna()
 
-        # 4. ADR% or Weekly Volatility Filter
-        df_daily["ADR_pct"] = ((df_daily["High"] - df_daily["Low"]) / df_daily["Close"]) * 100
-        adr_20_pct = df_daily["ADR_pct"].tail(20).mean()
-        
-        weekly_returns = df_weekly["Close"].pct_change().dropna()
-        weekly_vol_pct = weekly_returns.tail(20).std() * 100
-        
-        if adr_20_pct <= config.UNIVERSE_FILTERS["min_adr_pct"] and weekly_vol_pct <= config.UNIVERSE_FILTERS["min_weekly_volatility_pct"]:
-            return results
-
         if len(df_monthly) < 30 or len(df_weekly) < 35:
             return results
 
         # Calculate dates correctly because stock.history uses timezone-aware datetime index
         market_date = df_daily.index[-1].strftime("%Y%m%d")
+        close_price = round(float(df_daily["Close"].iloc[-1]), 2)
 
         for screen_name, screen_func in SCREENER_REGISTRY.items():
             try:
@@ -112,28 +135,45 @@ def evaluate_stock(ticker: str) -> list[dict]:
     return results
 
 # ---------------------------------------------------------
-# 3. RUNNER & PERSISTENCE
+# 4. RUNNER & PERSISTENCE
 # ---------------------------------------------------------
 def run_scan():
     tickers = get_all_tickers()
     total = len(tickers)
     active_screens = list(SCREENER_REGISTRY.keys())
     print(f"Loaded {len(active_screens)} screener(s): {active_screens}")
-    print(f"Scanning {total} tickers with custom config rules...")
+    
+    # Check if network update is even necessary by comparing cache to SPY's latest date
+    needs_update = True
+    if total > 0:
+        hist_file = os.path.join(DATA_DIR, f"cache_{tickers[0]}.csv")
+        if os.path.exists(hist_file):
+            try:
+                df_test = pd.read_csv(hist_file, index_col="Date", parse_dates=True)
+                spy = yf.download("SPY", period="5d", progress=False)
+                if spy.empty:
+                    print("Yahoo Finance API rate limit detected. Bypassing massive bulk download to protect cache...")
+                    needs_update = False
+                elif not df_test.empty:
+                    # If local cache matches or exceeds Yahoo's latest market tick, skip massive download
+                    if df_test.index[-1] >= spy.index[-1]:
+                        needs_update = False
+            except Exception:
+                pass
+                
+    if needs_update:
+        # bulk update without verbose progress bars
+        bulk_update = yf.download(tickers, period="5d", interval="1d", progress=False, auto_adjust=True)
+    else:
+        bulk_update = None
 
     all_matches = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-        future_to_ticker = {executor.submit(evaluate_stock, t): t for t in tickers}
-        completed = 0
+        future_to_ticker = {executor.submit(evaluate_stock, t, bulk_update): t for t in tickers}
         for future in concurrent.futures.as_completed(future_to_ticker):
-            completed += 1
             res = future.result()
             if res:
                 all_matches.extend(res)
-                for item in res:
-                    print(f"-> Match: [{item['screener_name']}] {item['stock']} (${item['closing_price']})")
-            if completed % 50 == 0 or completed == total:
-                print(f"Progress: {completed}/{total} scanned...")
 
     csv_file = "screener_results.csv"
 
