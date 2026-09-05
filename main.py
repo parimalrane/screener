@@ -85,8 +85,8 @@ def evaluate_stock(ticker: str, bulk_update: pd.DataFrame = None) -> list[dict]:
         previous_latest_date = df_daily.index[-1] if not df_daily.empty else None
         
         if df_daily.empty:
-            # First time run (or corrupted CSV): pull full 3y history
-            df_daily = yf.download(ticker, period="3y", interval="1d", progress=False, auto_adjust=True)
+            # First time run (or corrupted CSV): pull full 10y history for EMA stability
+            df_daily = yf.download(ticker, period="10y", interval="1d", progress=False, auto_adjust=True)
             if df_daily.empty:
                 # Automatically blacklist delisted/dead tickers so we never query them again
                 add_to_ignore_list(ticker)
@@ -100,7 +100,7 @@ def evaluate_stock(ticker: str, bulk_update: pd.DataFrame = None) -> list[dict]:
             # We have local history and new delta data to compress and merge
             df_daily = pd.concat([df_daily, new_data])
             df_daily = df_daily[~df_daily.index.duplicated(keep="last")].sort_index()
-            df_daily = df_daily.tail(750)  # Retain ~3 years
+            df_daily = df_daily.tail(2500)  # Retain ~10 years exactly
             df_daily.to_csv(hist_file)
         
         if df_daily.empty or len(df_daily) < 250:
