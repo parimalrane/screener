@@ -5,7 +5,10 @@ on:
     # 20:30 UTC = 4:30 PM EDT (Mon-Fri)
     # 21:30 UTC = 4:30 PM EST (Mon-Fri)
     - cron: '30 20 * * 1-5'
-  workflow_dispatch: # Allows manual trigger from the GitHub web UI
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   run-screener:
@@ -29,11 +32,10 @@ jobs:
       - name: Run Screener
         run: python screener.py
 
-      - name: Upload Results as Artifact
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: screener-results
-          path: screener_results.csv
-          retention-days: 7
-          
+      - name: Commit and Push Appended CSV
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git pull origin main --rebase
+          git add screener_results.csv
+          git diff --staged --quiet || (git commit -m "Update screener_results.csv [skip ci]" && git push origin main)
