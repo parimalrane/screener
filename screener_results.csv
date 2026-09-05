@@ -1,5 +1,13 @@
 marketdate,screener_name,stock,closing_price
+20260904,Bullish_50,CNH,14.4
+20260904,Bullish_50,CDNA,50.88
+20260904,Bullish_50,OLLI,76.57
+20260904,Bullish_50,TH,19.52
+20260904,Bullish_50,MOS,25.85
 20260904,Bullish_TS_Daily,AMD,477.57
+20260904,Bullish_50,ARLO,13.97
+20260904,Bullish_50,AESI,13.46
+20260904,Bullish_50,BE,252.87
 20260904,Bullish_TS_Daily,COHR,281.86
 20260904,Bullish_TS_Daily,CRS,475.33
 20260904,Bullish_TS_Daily,CGNX,62.25
@@ -7,6 +15,7 @@ marketdate,screener_name,stock,closing_price
 20260904,Bullish_TS_Daily,BEN,34.73
 20260904,Bullish_TS_Daily,MTSI,268.95
 20260904,Bullish_TS_Daily,MSM,121.41
+20260904,Bullish_50,MU,1016.59
 20260904,Bullish_TS_Daily,MRAAY,23.29
 20260904,Bullish_TS_Daily,NATL,46.09
 20260904,Bullish_TS_Daily,SANM,198.47
