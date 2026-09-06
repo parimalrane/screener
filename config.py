@@ -8,7 +8,8 @@ MIN_ADR_PERCENT = 4.0
 STRATEGIES = {
     "Bullish_TS_Daily": True,
     "Bearish_TS_Daily": True,
-    "Bullish_50": False,
+    "Bullish_50": True,
+    "Bearish_50": True,
     "Bullish_TS_Hourly": False,
     "Bearish_TS_Hourly": False
 }

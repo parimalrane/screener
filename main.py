@@ -229,6 +229,12 @@ def run_scan():
 
     if all_matches:
         df_new = pd.DataFrame(all_matches)
+        
+        # Sort so Bullish strategies appear first, followed by Bearish, grouped alphabetically by Ticker
+        df_new["is_bull"] = df_new["screener_name"].str.lower().str.contains("bull")
+        df_new = df_new.sort_values(by=["is_bull", "screener_name", "stock"], ascending=[False, True, True])
+        df_new = df_new.drop(columns=["is_bull"])
+        
         print("\n" + "=" * 50)
         print("NEW MATCHES")
         print("=" * 50)
@@ -238,6 +244,12 @@ def run_scan():
             df_existing = pd.read_csv(csv_file, dtype={"marketdate": str})
             df_combined = pd.concat([df_existing, df_new], ignore_index=True)
             df_combined.drop_duplicates(subset=["marketdate", "screener_name", "stock"], keep="last", inplace=True)
+            
+            # Re-sort the final master csv historically and by bull/bear
+            df_combined["is_bull"] = df_combined["screener_name"].str.lower().str.contains("bull")
+            df_combined = df_combined.sort_values(by=["marketdate", "is_bull", "screener_name", "stock"], ascending=[False, False, True, True])
+            df_combined = df_combined.drop(columns=["is_bull"])
+            
             df_combined.to_csv(csv_file, index=False)
         else:
             df_new.to_csv(csv_file, index=False)
