@@ -17,14 +17,9 @@ def check(df_daily: pd.DataFrame, df_weekly: pd.DataFrame, df_monthly: pd.DataFr
         current_vol = df_daily["Volume"].iloc[-1]
 
         # -----------------------------------------------------
-        # Base Filters (Price, Volume, ADR)
+        # Base Filters (Volume, ADR)
         # -----------------------------------------------------
-        if current_close <= 10:
-            return False
-            
         sma_vol_20 = df_daily["Volume"].tail(20).mean()
-        if sma_vol_20 <= 1_000_000:
-            return False
 
         # Volume greater than 20-day average
         if current_vol <= sma_vol_20:

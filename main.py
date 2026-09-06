@@ -39,20 +39,50 @@ for _, module_name, _ in pkgutil.iter_modules(strategies.__path__):
 # ---------------------------------------------------------
 # 1. UNIVERSE SELECTION
 # ---------------------------------------------------------
-def get_all_tickers() -> list[str]:
+def get_all_tickers() -> dict:
     try:
-        df = pd.read_csv("stocks_universe.csv")
-        base_tickers = pd.Series(df.iloc[:, 0]).dropna().astype(str).tolist()
+        import glob
+        files = glob.glob("*_stocks.csv")
+        files.sort()
+        target_file = files[-1] if files else "stocks_universe.csv"
+        
+        print(f"Loading universe from: {target_file}")
+        df = pd.read_csv(target_file)
+        
+        ticker_col = "Ticker" if "Ticker" in df.columns else df.columns[0]
+        zacks_col = "Zacks Rank" if "Zacks Rank" in df.columns else None
+        
         ignored = get_ignored_tickers()
-        return [t for t in base_tickers if t not in ignored]
+        ticker_data = {}
+        
+        for _, row in df.iterrows():
+            t = str(row[ticker_col]).strip()
+            if t in ignored or t.lower() == "nan" or not t:
+                continue
+                
+            rank = None
+            if zacks_col and pd.notna(row[zacks_col]):
+                try:
+                    rank = int(float(row[zacks_col]))
+                except ValueError:
+                    pass
+                    
+            # Strictly ignore any stock that doesn't have a valid 1-5 rank
+            if rank not in [1, 2, 3, 4, 5]:
+                continue
+                    
+            ticker_data[t] = rank
+
+        return ticker_data
+        
     except Exception as e:
         print(f"Error reading universe: {e}")
-        return ["AAPL", "MSFT", "NVDA", "AMZN", "META", "TSLA", "AMD", "NFLX"]
+        return {"AAPL": None, "MSFT": None}
 
 # ---------------------------------------------------------
 # 3. STOCK EVALUATION (Strategy Only)
 # ---------------------------------------------------------
-def evaluate_stock(ticker: str, bulk_update: pd.DataFrame = None) -> list[dict]:
+def evaluate_stock(ticker: str, zacks_rank: int, bulk_update: pd.DataFrame = None) -> list[dict]:
     results = []
     try:
         hist_file = os.path.join(DATA_DIR, f"cache_{ticker}.csv")
@@ -113,11 +143,28 @@ def evaluate_stock(ticker: str, bulk_update: pd.DataFrame = None) -> list[dict]:
         if len(df_monthly) < 30 or len(df_weekly) < 35:
             return results
 
+        # Global Volatility Check (Drop boring stocks early)
+        recent_adr = ((df_daily["High"] - df_daily["Low"]) / df_daily["Close"] * 100).tail(20).mean()
+        if recent_adr < getattr(config, "MIN_ADR_PERCENT", 0):
+            return results
+
         # Calculate dates correctly because stock.history uses timezone-aware datetime index
         market_date = df_daily.index[-1].strftime("%Y%m%d")
         close_price = round(float(df_daily["Close"].iloc[-1]), 2)
 
         for screen_name, screen_func in SCREENER_REGISTRY.items():
+            # Check the config file to see if the user manually disabled this strategy
+            if not getattr(config, "STRATEGIES", {}).get(screen_name, True):
+                continue
+                
+            # Zacks Rank Filter Logic
+            name_lower = screen_name.lower()
+            if zacks_rank is not None:
+                if "bullish" in name_lower and zacks_rank in [4, 5]:
+                    continue
+                if "bearish" in name_lower and zacks_rank in [1, 2]:
+                    continue
+                
             try:
                 if screen_func(df_daily, df_weekly, df_monthly):
                     results.append({
@@ -138,10 +185,13 @@ def evaluate_stock(ticker: str, bulk_update: pd.DataFrame = None) -> list[dict]:
 # 4. RUNNER & PERSISTENCE
 # ---------------------------------------------------------
 def run_scan():
-    tickers = get_all_tickers()
+    tickers_dict = get_all_tickers()
+    tickers = list(tickers_dict.keys())
     total = len(tickers)
-    active_screens = list(SCREENER_REGISTRY.keys())
-    print(f"Loaded {len(active_screens)} screener(s): {active_screens}")
+    
+    # Filter the printout to strictly show what is enabled in config.py
+    active_screens = [name for name in SCREENER_REGISTRY.keys() if getattr(config, "STRATEGIES", {}).get(name, True)]
+    print(f"Loaded {len(active_screens)} active screener(s): {active_screens}")
     
     # Check if network update is even necessary by comparing cache to SPY's latest date
     needs_update = True
@@ -169,7 +219,7 @@ def run_scan():
 
     all_matches = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-        future_to_ticker = {executor.submit(evaluate_stock, t, bulk_update): t for t in tickers}
+        future_to_ticker = {executor.submit(evaluate_stock, t, tickers_dict[t], bulk_update): t for t in tickers}
         for future in concurrent.futures.as_completed(future_to_ticker):
             res = future.result()
             if res:
