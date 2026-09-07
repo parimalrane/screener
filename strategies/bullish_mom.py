@@ -7,6 +7,7 @@ from asta_conditions import (
     is_macd_pco,
     is_macd_rising,
     is_macd_above_zero,
+    is_macd_up,
     is_rsi_above,
     is_price_above_sma,
     is_price_above_ema,
@@ -21,6 +22,11 @@ def check(df_daily: pd.DataFrame, df_weekly: pd.DataFrame, df_monthly: pd.DataFr
     try:
         if len(df_monthly) < 50 or len(df_weekly) < 50 or len(df_daily) < 50:
             return False
+
+        # -----------------------------------------------------
+        # MUST-HAVE: SUPER TIDE CONDITIONS (Monthly)
+        # -----------------------------------------------------
+        if not is_macd_up(df_monthly): return False
 
         # -----------------------------------------------------
         # MUST-HAVE: WEEKLY CONDITIONS (Tide)
@@ -43,9 +49,7 @@ def check(df_daily: pd.DataFrame, df_weekly: pd.DataFrame, df_monthly: pd.DataFr
         if not is_volume_above_average(df_daily, 20): return False
         # Wave - 5 EMA Positive Crossover
         if not (is_ema_pco(df_daily, 5, 13) or is_ema_pco(df_daily, 5, 26)): return False
-        # Wave - DI PCO
-        if not is_di_bullish(df_daily): return False
-        # Wave - ADX Ungli OR Above 15
+        # Wave - ADX Ungli OR Above 15/20
         if not is_adx_rising_or_above(df_daily): return False
         
         # -----------------------------------------------------

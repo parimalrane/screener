@@ -155,7 +155,8 @@ def is_adx_ungali(df: pd.DataFrame, length: int = 14) -> bool:
     curr_adx = adx_df[adx_col].iloc[-1]
     prev_adx = adx_df[adx_col].iloc[-2]
     
-    return (curr_adx > prev_adx) or (curr_adx > 20)
+    # Rising above 15 OR already above 20
+    return (curr_adx > 15 and curr_adx > prev_adx) or (curr_adx > 20)
 
 def is_solid_candle(df: pd.DataFrame, direction: str = 'bullish') -> bool:
     """10. Solid Candle (Not Neutral or Tiny)"""
@@ -329,8 +330,8 @@ def is_ema_pco(df: pd.DataFrame, short_len: int = 5, long_len: int = 13) -> bool
     if ema_s is None or ema_l is None: return False
     return ema_s.iloc[-1] > ema_l.iloc[-1]
 
-def is_adx_rising_or_above(df: pd.DataFrame, lower: int = 12, upper: int = 15, length: int = 14) -> bool:
-    """Helper: Custom ADX momentum logic from spreadsheet"""
+def is_adx_rising_or_above(df: pd.DataFrame, length: int = 14) -> bool:
+    """Helper: Custom ADX momentum logic (Rising > 12 OR already > 20)"""
     if len(df) < length * 2: return False
     adx_df = ta.adx(df["High"], df["Low"], df["Close"], length=length)
     if adx_df is None or len(adx_df) < 2: return False
@@ -338,8 +339,8 @@ def is_adx_rising_or_above(df: pd.DataFrame, lower: int = 12, upper: int = 15, l
     curr_adx = adx_df[adx_col].iloc[-1]
     prev_adx = adx_df[adx_col].iloc[-2]
     
-    if curr_adx > upper: return True
-    if (curr_adx > prev_adx) and (curr_adx > lower): return True
+    if (curr_adx > prev_adx) and (curr_adx > 12): return True
+    if curr_adx > 20: return True
     return False
 
 def is_di_bullish(df: pd.DataFrame, length: int = 14) -> bool:
