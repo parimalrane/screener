@@ -273,12 +273,21 @@ def run_scan():
             if s in ["medium", "m"]: return 1
             return 2
             
+        def get_strategy_rank(val):
+            if pd.isna(val): return 3
+            s = str(val)
+            if "TS" in s: return 0
+            if "MO" in s: return 1
+            if "SW" in s: return 2
+            return 3
+            
         df_new["is_bull"] = df_new["screener_name"].str.startswith("BU")
         df_new["prob_rank"] = df_new.get("Probability", pd.Series(dtype=str)).apply(get_prob_rank)
+        df_new["strategy_rank"] = df_new["screener_name"].apply(get_strategy_rank)
         
-        # Sort hierarchy: Bullish first, then High -> Medium -> Uncategorized, then Screener, then Ticker
-        df_new = df_new.sort_values(by=["is_bull", "prob_rank", "screener_name", "stock"], ascending=[False, True, True, True])
-        df_new = df_new.drop(columns=["is_bull", "prob_rank"])
+        # Sort hierarchy: Bullish first -> Strategy (TS, MOM, SWING) -> Probability (H, M) -> Ticker
+        df_new = df_new.sort_values(by=["is_bull", "strategy_rank", "prob_rank", "stock"], ascending=[False, True, True, True])
+        df_new = df_new.drop(columns=["is_bull", "prob_rank", "strategy_rank"])
         
         print("\n" + "=" * 80)
         print("                               NEW MATCHES                               ")
@@ -306,15 +315,16 @@ def run_scan():
                 
                 df_combined = pd.concat([df_existing, df_new], ignore_index=True)
                 
-                # Re-sort the final master csv historically and by bull/bear / probability
+                # Re-sort the final master csv historically and by strategy / probability
                 df_combined["is_bull"] = df_combined["screener_name"].str.startswith("BU")
                 df_combined["prob_rank"] = df_combined.get("Probability", pd.Series(dtype=str)).apply(get_prob_rank)
+                df_combined["strategy_rank"] = df_combined.get("screener_name", pd.Series(dtype=str)).apply(get_strategy_rank)
                 
                 df_combined = df_combined.sort_values(
-                    by=["marketdate", "is_bull", "prob_rank", "screener_name", "stock"], 
+                    by=["marketdate", "is_bull", "strategy_rank", "prob_rank", "stock"], 
                     ascending=[False, False, True, True, True]
                 )
-                df_combined = df_combined.drop(columns=["is_bull", "prob_rank"])
+                df_combined = df_combined.drop(columns=["is_bull", "prob_rank", "strategy_rank"])
                 
                 df_combined.to_csv(csv_file, index=False)
             except Exception as e:
