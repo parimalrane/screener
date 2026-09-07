@@ -166,13 +166,26 @@ def evaluate_stock(ticker: str, zacks_rank: int, bulk_update: pd.DataFrame = Non
                     continue
                 
             try:
-                if screen_func(df_daily, df_weekly, df_monthly):
-                    results.append({
+                res = screen_func(df_daily, df_weekly, df_monthly)
+                is_hit = False
+                tags = ""
+                
+                if isinstance(res, tuple):
+                    is_hit, tags = res
+                else:
+                    is_hit = res
+                    
+                if is_hit:
+                    row = {
                         "marketdate": market_date,
                         "screener_name": screen_name,
-                        "stock": ticker,
-                        "closing_price": close_price
-                    })
+                        "stock": ticker
+                    }
+                    if isinstance(tags, dict):
+                        row.update(tags)
+                    elif isinstance(tags, str):
+                        row["tags"] = tags
+                    results.append(row)
             except Exception:
                 continue
 
@@ -230,25 +243,50 @@ def run_scan():
     if all_matches:
         df_new = pd.DataFrame(all_matches)
         
-        # Sort so Bullish strategies appear first, followed by Bearish, grouped alphabetically by Ticker
+        # Rename 'tags' to 'Probability' if it exists in the dataframe
+        if 'tags' in df_new.columns:
+            df_new.rename(columns={'tags': 'Probability'}, inplace=True)
+
+        def get_prob_rank(val):
+            if pd.isna(val): return 2
+            s = str(val).lower()
+            if "high" in s: return 0
+            if "medium" in s: return 1
+            return 2
+            
         df_new["is_bull"] = df_new["screener_name"].str.lower().str.contains("bull")
-        df_new = df_new.sort_values(by=["is_bull", "screener_name", "stock"], ascending=[False, True, True])
-        df_new = df_new.drop(columns=["is_bull"])
+        df_new["prob_rank"] = df_new.get("Probability", pd.Series(dtype=str)).apply(get_prob_rank)
         
-        print("\n" + "=" * 50)
-        print("NEW MATCHES")
-        print("=" * 50)
+        # Sort hierarchy: Bullish first, then High -> Medium -> Uncategorized, then Screener, then Ticker
+        df_new = df_new.sort_values(by=["is_bull", "prob_rank", "screener_name", "stock"], ascending=[False, True, True, True])
+        df_new = df_new.drop(columns=["is_bull", "prob_rank"])
+        
+        print("\n" + "=" * 80)
+        print("                               NEW MATCHES                               ")
+        print("=" * 80)
         print(df_new.to_string(index=False))
 
         if os.path.exists(csv_file) and os.path.getsize(csv_file) > 0:
             df_existing = pd.read_csv(csv_file, dtype={"marketdate": str})
-            df_combined = pd.concat([df_existing, df_new], ignore_index=True)
-            df_combined.drop_duplicates(subset=["marketdate", "screener_name", "stock"], keep="last", inplace=True)
+            # Ensure historic runs map tags to Probability
+            if 'tags' in df_existing.columns and 'Probability' not in df_existing.columns:
+                df_existing.rename(columns={'tags': 'Probability'}, inplace=True)
+                
+            # Erase all previous entries for the current market date to ensure a clean overwrite
+            current_date = df_new["marketdate"].iloc[0]
+            df_existing = df_existing[df_existing["marketdate"] != current_date]
             
-            # Re-sort the final master csv historically and by bull/bear
+            df_combined = pd.concat([df_existing, df_new], ignore_index=True)
+            
+            # Re-sort the final master csv historically and by bull/bear / probability
             df_combined["is_bull"] = df_combined["screener_name"].str.lower().str.contains("bull")
-            df_combined = df_combined.sort_values(by=["marketdate", "is_bull", "screener_name", "stock"], ascending=[False, False, True, True])
-            df_combined = df_combined.drop(columns=["is_bull"])
+            df_combined["prob_rank"] = df_combined.get("Probability", pd.Series(dtype=str)).apply(get_prob_rank)
+            
+            df_combined = df_combined.sort_values(
+                by=["marketdate", "is_bull", "prob_rank", "screener_name", "stock"], 
+                ascending=[False, False, True, True, True]
+            )
+            df_combined = df_combined.drop(columns=["is_bull", "prob_rank"])
             
             df_combined.to_csv(csv_file, index=False)
         else:
@@ -258,7 +296,7 @@ def run_scan():
     else:
         print("\nNo matches found today across any registered screeners.")
         if not os.path.exists(csv_file):
-            pd.DataFrame(columns=["marketdate", "screener_name", "stock", "closing_price"]).to_csv(csv_file, index=False)
+            pd.DataFrame(columns=["marketdate", "screener_name", "stock", "tags"]).to_csv(csv_file, index=False)
 
 if __name__ == "__main__":
     run_scan()

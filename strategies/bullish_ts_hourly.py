@@ -10,6 +10,34 @@ def check(df_daily: pd.DataFrame, df_weekly: pd.DataFrame, df_monthly: pd.DataFr
     """
     try:
         # -----------------------------------------------------
+        # Macro Trend (Monthly)
+        # -----------------------------------------------------
+        # Need adequate monthly baseline data
+        if len(df_monthly) < 25:
+            return False
+            
+        bb_m = ta.bbands(df_monthly["Close"], length=20, std=2)
+        rsi_m = ta.rsi(df_monthly["Close"], length=14)
+        sma_m = ta.sma(df_monthly["Close"], length=20)
+        
+        if bb_m is None or rsi_m is None or sma_m is None:
+            return False
+            
+        bbu_m = bb_m.iloc[:, 2]
+        
+        # Monthly BBUC (Upper BB is Challenged/Rising)
+        if bbu_m.iloc[-1] <= bbu_m.iloc[-2]:
+            return False
+            
+        # Monthly RSI > 60
+        if rsi_m.iloc[-1] <= 60:
+            return False
+            
+        # Monthly Price > 20 SMA
+        if df_monthly["Close"].iloc[-1] <= sma_m.iloc[-1]:
+            return False
+
+        # -----------------------------------------------------
         # Base Trend (Weekly)
         # -----------------------------------------------------
         macd_w = ta.macd(df_weekly["Close"], fast=12, slow=26, signal=9)

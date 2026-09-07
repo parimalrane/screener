@@ -10,6 +10,33 @@ def check(df_daily: pd.DataFrame, df_weekly: pd.DataFrame, df_monthly: pd.DataFr
     """
     try:
         # -----------------------------------------------------
+        # Bearish Macro Trend (Monthly)
+        # -----------------------------------------------------
+        if len(df_monthly) < 25:
+            return False
+            
+        bb_m = ta.bbands(df_monthly["Close"], length=20, std=2)
+        rsi_m = ta.rsi(df_monthly["Close"], length=14)
+        sma_m = ta.sma(df_monthly["Close"], length=20)
+        
+        if bb_m is None or rsi_m is None or sma_m is None:
+            return False
+            
+        bbl_m = bb_m.iloc[:, 0]  # Lower Band
+        
+        # Monthly BBDC (Lower BB is Challenged/Dropping)
+        if bbl_m.iloc[-1] >= bbl_m.iloc[-2]:
+            return False
+            
+        # Monthly RSI < 40
+        if rsi_m.iloc[-1] >= 40:
+            return False
+            
+        # Monthly Price < 20 SMA
+        if df_monthly["Close"].iloc[-1] >= sma_m.iloc[-1]:
+            return False
+
+        # -----------------------------------------------------
         # Bearish Base Trend (Weekly)
         # -----------------------------------------------------
         macd_w = ta.macd(df_weekly["Close"], fast=12, slow=26, signal=9)
