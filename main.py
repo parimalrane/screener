@@ -202,9 +202,14 @@ def run_scan():
     tickers = list(tickers_dict.keys())
     total = len(tickers)
     
-    # Filter the printout to strictly show what is enabled in config.py
     active_screens = [name for name in SCREENER_REGISTRY.keys() if getattr(config, "STRATEGIES", {}).get(name, True)]
-    print(f"Loaded {len(active_screens)} active screener(s): {active_screens}")
+    
+    names_map = {
+        "Bullish_TS_Daily": "BU_TS", "Bullish_MOM": "BU_MO", "Bullish_Swing": "BU_SW",
+        "Bearish_TS_Daily": "BE_TS", "Bearish_MOM": "BE_MO", "Bearish_Swing": "BE_SW"
+    }
+    short_screens = [names_map.get(name, name) for name in active_screens]
+    print(f"Loaded {len(short_screens)} active screener(s): {short_screens}")
     
     # Check if network update is even necessary by comparing cache to SPY's latest date
     needs_update = True
@@ -281,32 +286,40 @@ def run_scan():
         print(df_new.to_string(index=False))
 
         if os.path.exists(csv_file) and os.path.getsize(csv_file) > 0:
-            df_existing = pd.read_csv(csv_file, dtype={"marketdate": str})
-            
-            # Ensure historic runs map tags to Probability and update to short names
-            if 'tags' in df_existing.columns and 'Probability' not in df_existing.columns:
-                df_existing.rename(columns={'tags': 'Probability'}, inplace=True)
-            df_existing["screener_name"] = df_existing["screener_name"].replace(names_map)
-            if "Probability" in df_existing.columns:
-                df_existing["Probability"] = df_existing["Probability"].replace(prob_map)
+            try:
+                df_existing = pd.read_csv(csv_file, dtype={"marketdate": str})
                 
-            # Erase all previous entries for the current market date to ensure a clean overwrite
-            current_date = df_new["marketdate"].iloc[0]
-            df_existing = df_existing[df_existing["marketdate"] != current_date]
-            
-            df_combined = pd.concat([df_existing, df_new], ignore_index=True)
-            
-            # Re-sort the final master csv historically and by bull/bear / probability
-            df_combined["is_bull"] = df_combined["screener_name"].str.startswith("BU")
-            df_combined["prob_rank"] = df_combined.get("Probability", pd.Series(dtype=str)).apply(get_prob_rank)
-            
-            df_combined = df_combined.sort_values(
-                by=["marketdate", "is_bull", "prob_rank", "screener_name", "stock"], 
-                ascending=[False, False, True, True, True]
-            )
-            df_combined = df_combined.drop(columns=["is_bull", "prob_rank"])
-            
-            df_combined.to_csv(csv_file, index=False)
+                # If CSV is corrupted (e.g. Git conflict markers), start fresh
+                if "screener_name" not in df_existing.columns:
+                    raise ValueError("Corrupt CSV header")
+                    
+                # Ensure historic runs map tags to Probability and update to short names
+                if 'tags' in df_existing.columns and 'Probability' not in df_existing.columns:
+                    df_existing.rename(columns={'tags': 'Probability'}, inplace=True)
+                df_existing["screener_name"] = df_existing["screener_name"].replace(names_map)
+                if "Probability" in df_existing.columns:
+                    df_existing["Probability"] = df_existing["Probability"].replace(prob_map)
+                    
+                # Erase all previous entries for the current market date to ensure a clean overwrite
+                current_date = df_new["marketdate"].iloc[0]
+                df_existing = df_existing[df_existing["marketdate"] != current_date]
+                
+                df_combined = pd.concat([df_existing, df_new], ignore_index=True)
+                
+                # Re-sort the final master csv historically and by bull/bear / probability
+                df_combined["is_bull"] = df_combined["screener_name"].str.startswith("BU")
+                df_combined["prob_rank"] = df_combined.get("Probability", pd.Series(dtype=str)).apply(get_prob_rank)
+                
+                df_combined = df_combined.sort_values(
+                    by=["marketdate", "is_bull", "prob_rank", "screener_name", "stock"], 
+                    ascending=[False, False, True, True, True]
+                )
+                df_combined = df_combined.drop(columns=["is_bull", "prob_rank"])
+                
+                df_combined.to_csv(csv_file, index=False)
+            except Exception as e:
+                print(f"Warning: Rebuilding corrupted database... ({e})")
+                df_new.to_csv(csv_file, index=False)
         else:
             df_new.to_csv(csv_file, index=False)
 
