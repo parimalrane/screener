@@ -247,14 +247,28 @@ def run_scan():
         if 'tags' in df_new.columns:
             df_new.rename(columns={'tags': 'Probability'}, inplace=True)
 
+        names_map = {
+            "Bullish_TS_Daily": "BU_TS",
+            "Bullish_MOM": "BU_MO",
+            "Bullish_Swing": "BU_SW",
+            "Bearish_TS_Daily": "BE_TS",
+            "Bearish_MOM": "BE_MO",
+            "Bearish_Swing": "BE_SW"
+        }
+        df_new["screener_name"] = df_new["screener_name"].replace(names_map)
+
+        prob_map = {"High": "H", "Medium": "M"}
+        if "Probability" in df_new.columns:
+            df_new["Probability"] = df_new["Probability"].replace(prob_map)
+
         def get_prob_rank(val):
             if pd.isna(val): return 2
             s = str(val).lower()
-            if "high" in s: return 0
-            if "medium" in s: return 1
+            if s in ["high", "h"]: return 0
+            if s in ["medium", "m"]: return 1
             return 2
             
-        df_new["is_bull"] = df_new["screener_name"].str.lower().str.contains("bull")
+        df_new["is_bull"] = df_new["screener_name"].str.startswith("BU")
         df_new["prob_rank"] = df_new.get("Probability", pd.Series(dtype=str)).apply(get_prob_rank)
         
         # Sort hierarchy: Bullish first, then High -> Medium -> Uncategorized, then Screener, then Ticker
@@ -268,9 +282,13 @@ def run_scan():
 
         if os.path.exists(csv_file) and os.path.getsize(csv_file) > 0:
             df_existing = pd.read_csv(csv_file, dtype={"marketdate": str})
-            # Ensure historic runs map tags to Probability
+            
+            # Ensure historic runs map tags to Probability and update to short names
             if 'tags' in df_existing.columns and 'Probability' not in df_existing.columns:
                 df_existing.rename(columns={'tags': 'Probability'}, inplace=True)
+            df_existing["screener_name"] = df_existing["screener_name"].replace(names_map)
+            if "Probability" in df_existing.columns:
+                df_existing["Probability"] = df_existing["Probability"].replace(prob_map)
                 
             # Erase all previous entries for the current market date to ensure a clean overwrite
             current_date = df_new["marketdate"].iloc[0]
@@ -279,7 +297,7 @@ def run_scan():
             df_combined = pd.concat([df_existing, df_new], ignore_index=True)
             
             # Re-sort the final master csv historically and by bull/bear / probability
-            df_combined["is_bull"] = df_combined["screener_name"].str.lower().str.contains("bull")
+            df_combined["is_bull"] = df_combined["screener_name"].str.startswith("BU")
             df_combined["prob_rank"] = df_combined.get("Probability", pd.Series(dtype=str)).apply(get_prob_rank)
             
             df_combined = df_combined.sort_values(
