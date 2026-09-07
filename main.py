@@ -205,8 +205,10 @@ def run_scan():
     active_screens = [name for name in SCREENER_REGISTRY.keys() if getattr(config, "STRATEGIES", {}).get(name, True)]
     
     names_map = {
-        "Bullish_TS_Daily": "BU_TS", "Bullish_MOM": "BU_MO", "Bullish_Swing": "BU_SW",
-        "Bearish_TS_Daily": "BE_TS", "Bearish_MOM": "BE_MO", "Bearish_Swing": "BE_SW"
+        "Bullish_TS_Daily": "BU_TSD", "Bullish_TS_Hourly": "BU_TSH",
+        "Bullish_MOM": "BU_MOM", "Bullish_Swing": "BU_SWG",
+        "Bearish_TS_Daily": "BE_TSD", "Bearish_TS_Hourly": "BE_TSH",
+        "Bearish_MOM": "BE_MOM", "Bearish_Swing": "BE_SWG"
     }
     short_screens = [names_map.get(name, name) for name in active_screens]
     print(f"Loaded {len(short_screens)} active screener(s): {short_screens}")
@@ -253,12 +255,14 @@ def run_scan():
             df_new.rename(columns={'tags': 'Probability'}, inplace=True)
 
         names_map = {
-            "Bullish_TS_Daily": "BU_TS",
-            "Bullish_MOM": "BU_MO",
-            "Bullish_Swing": "BU_SW",
-            "Bearish_TS_Daily": "BE_TS",
-            "Bearish_MOM": "BE_MO",
-            "Bearish_Swing": "BE_SW"
+            "Bullish_TS_Daily": "BU_TSD",
+            "Bullish_TS_Hourly": "BU_TSH",
+            "Bullish_MOM": "BU_MOM",
+            "Bullish_Swing": "BU_SWG",
+            "Bearish_TS_Daily": "BE_TSD",
+            "Bearish_TS_Hourly": "BE_TSH",
+            "Bearish_MOM": "BE_MOM",
+            "Bearish_Swing": "BE_SWG"
         }
         df_new["screener_name"] = df_new["screener_name"].replace(names_map)
 
@@ -274,12 +278,13 @@ def run_scan():
             return 2
             
         def get_strategy_rank(val):
-            if pd.isna(val): return 3
-            s = str(val)
-            if "TS" in s: return 0
-            if "MO" in s: return 1
-            if "SW" in s: return 2
-            return 3
+            if pd.isna(val): return 99
+            s = str(val).upper()
+            if "TSD" in s: return 0
+            if "TSH" in s: return 1
+            if "MOM" in s: return 2
+            if "SWG" in s: return 3
+            return 99
             
         df_new["is_bull"] = df_new["screener_name"].str.startswith("BU")
         df_new["prob_rank"] = df_new.get("Probability", pd.Series(dtype=str)).apply(get_prob_rank)
@@ -334,6 +339,23 @@ def run_scan():
             df_new.to_csv(csv_file, index=False)
 
         print(f"\nSaved to {csv_file}")
+        
+        # -----------------------------------------------------
+        # TRADINGVIEW WATCHLIST EXPORT BUILDER
+        # -----------------------------------------------------
+        print("\n" + "=" * 80)
+        print("                      TRADINGVIEW WATCHLIST EXPORT                       ")
+        print("=" * 80)
+        
+        # df_new is theoretically already sorted in the exact strategy hierarchy needed
+        for strategy in df_new["screener_name"].unique():
+            tickers = df_new[df_new["screener_name"] == strategy]["stock"].unique().tolist()
+            if tickers:
+                ticker_string = ",".join(tickers)
+                print(f"###{strategy},{ticker_string},")
+                
+        print("=" * 80 + "\n")
+        
     else:
         print("\nNo matches found today across any registered screeners.")
         if not os.path.exists(csv_file):

@@ -1,85 +1,43 @@
 import pandas as pd
-import pandas_ta as ta
 from registry import register_screener
+from asta_conditions import (
+    is_macd_rising, is_macd_nco, is_macd_pco, is_solid_candle, is_bkp, is_bbuc,
+    is_ema_pco, is_rsi_above, is_price_above_sma, is_stoch_pco, is_stochastic_buy,
+    is_volume_above_average, is_macd_up
+)
 
 @register_screener("Bullish_TS_Hourly")
-def check(df_daily: pd.DataFrame, df_weekly: pd.DataFrame, df_monthly: pd.DataFrame) -> bool:
+def check(df_daily: pd.DataFrame, df_weekly: pd.DataFrame, df_monthly: pd.DataFrame):
     """
-    Setup screener mapping to a Weekly Base and Daily Pullback.
-    (Hourly trigger is evaluated manually by the trader).
+    Evaluates only the Tide (Weekly) and Wave (Daily) structures.
+    The final Ripple (Hourly) execution is intentionally skipped for manual chart verification.
     """
     try:
-        # -----------------------------------------------------
-        # Macro Trend (Monthly)
-        # -----------------------------------------------------
-        # Need adequate monthly baseline data
-        if len(df_monthly) < 25:
+        if len(df_weekly) < 50 or len(df_daily) < 50:
             return False
+
+        # -----------------------------------------------------------------
+        # MANDATORY CONDITIONS
+        # -----------------------------------------------------------------
+        # Super Tide Contingency (Monthly) - Ignores IPOs lacking 30-month history
+        if len(df_monthly) >= 30:
+            if not is_macd_up(df_monthly): return False
             
-        bb_m = ta.bbands(df_monthly["Close"], length=20, std=2)
-        rsi_m = ta.rsi(df_monthly["Close"], length=14)
-        sma_m = ta.sma(df_monthly["Close"], length=20)
+        # Tide Constraints (Weekly)
+        if not is_macd_pco(df_weekly): return False
+        if not is_rsi_above(df_weekly, 60): return False
+        if not is_price_above_sma(df_weekly, 20): return False
         
-        if bb_m is None or rsi_m is None or sma_m is None:
-            return False
-            
-        bbu_m = bb_m.iloc[:, 2]
+        # Wave Constraints (Daily)
+        if not is_macd_nco(df_daily): return False
+        if not is_rsi_above(df_daily, 40): return False
         
-        # Monthly BBUC (Upper BB is Challenged/Rising)
-        if bbu_m.iloc[-1] <= bbu_m.iloc[-2]:
-            return False
-            
-        # Monthly RSI > 60
-        if rsi_m.iloc[-1] <= 60:
-            return False
-            
-        # Monthly Price > 20 SMA
-        if df_monthly["Close"].iloc[-1] <= sma_m.iloc[-1]:
-            return False
+        # Ripple Constraints (Hourly) - SKIPPED FOR MANUAL VERIFICATION
 
-        # -----------------------------------------------------
-        # Base Trend (Weekly)
-        # -----------------------------------------------------
-        macd_w = ta.macd(df_weekly["Close"], fast=12, slow=26, signal=9)
-        rsi_w = ta.rsi(df_weekly["Close"], length=14)
-        sma_w = ta.sma(df_weekly["Close"], length=20)
-        
-        if macd_w is None or rsi_w is None or sma_w is None:
-            return False
-
-        # Weekly MACD crossed up
-        cond1 = macd_w["MACD_12_26_9"].iloc[-1] > macd_w["MACDs_12_26_9"].iloc[-1]
-        
-        # Weekly RSI > 60
-        cond2 = rsi_w.iloc[-1] > 60
-        
-        # Weekly Price above 20-week SMA
-        cond3 = df_weekly["Close"].iloc[-1] > sma_w.iloc[-1]
-        
-        if not (cond1 and cond2 and cond3):
-            return False
-
-        # -----------------------------------------------------
-        # Pullback State (Daily)
-        # -----------------------------------------------------
-        macd_d = ta.macd(df_daily["Close"], fast=12, slow=26, signal=9)
-        rsi_d = ta.rsi(df_daily["Close"], length=14)
-        
-        if macd_d is None or rsi_d is None:
-            return False
-
-        # Daily MACD line cooling off (lower than signal)
-        cond4 = macd_d["MACD_12_26_9"].iloc[-1] < macd_d["MACDs_12_26_9"].iloc[-1]
-        
-        # Daily RSI safely elevated > 40 (trend is still intact despite pullback)
-        cond5 = rsi_d.iloc[-1] > 40
-        
-        if not (cond4 and cond5):
-            return False
-
-        # If it passes both the Weekly structural uptrend and the Daily pullback status,
-        # it is formally staged for an intraday (Hourly) entry pattern!
-        return True
+        # -----------------------------------------------------------------
+        # HIGH PROBABILITY EVALUATION
+        # -----------------------------------------------------------------
+        return (True, "High")
 
     except Exception:
         return False
