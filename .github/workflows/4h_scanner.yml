@@ -40,6 +40,8 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git pull origin main --rebase
           git add output/screener_4h_BU_results.csv output/screener_4h_BE_results.csv
-          git diff --staged --quiet || (git commit -m "Update 4H Scanner Results [skip ci]" && git push origin main)
+          git diff --staged --quiet || git commit -m "Update 4H Scanner Results [skip ci]"
+          git stash --include-untracked
+          git pull origin main --rebase
+          git push origin main
