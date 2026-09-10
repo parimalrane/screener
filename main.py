@@ -171,7 +171,7 @@ def evaluate_stock(ticker: str, zacks_rank: int, bulk_update: pd.DataFrame = Non
                 tags = ""
                 
                 if isinstance(res, tuple):
-                    is_hit, tags = res
+                    is_hit = res[0]
                 else:
                     is_hit = res
                     
@@ -181,10 +181,6 @@ def evaluate_stock(ticker: str, zacks_rank: int, bulk_update: pd.DataFrame = Non
                         "screener_name": screen_name,
                         "stock": ticker
                     }
-                    if isinstance(tags, dict):
-                        row.update(tags)
-                    elif isinstance(tags, str):
-                        row["tags"] = tags
                     results.append(row)
             except Exception:
                 continue
@@ -206,9 +202,7 @@ def run_scan():
     
     names_map = {
         "Bullish_TS_Daily": "BU_TSD", "Bullish_TS_Hourly": "BU_TSH",
-        "Bullish_MOM": "BU_MOM", "Bullish_Swing": "BU_SWG",
-        "Bearish_TS_Daily": "BE_TSD", "Bearish_TS_Hourly": "BE_TSH",
-        "Bearish_MOM": "BE_MOM", "Bearish_Swing": "BE_SWG"
+        "Bearish_TS_Daily": "BE_TSD", "Bearish_TS_Hourly": "BE_TSH"
     }
     short_screens = [names_map.get(name, name) for name in active_screens]
     print(f"Loaded {len(short_screens)} active screener(s): {short_screens}")
@@ -250,49 +244,27 @@ def run_scan():
     if all_matches:
         df_new = pd.DataFrame(all_matches)
         
-        # Rename 'tags' to 'Probability' if it exists in the dataframe
-        if 'tags' in df_new.columns:
-            df_new.rename(columns={'tags': 'Probability'}, inplace=True)
-
         names_map = {
             "Bullish_TS_Daily": "BU_TSD",
             "Bullish_TS_Hourly": "BU_TSH",
-            "Bullish_MOM": "BU_MOM",
-            "Bullish_Swing": "BU_SWG",
             "Bearish_TS_Daily": "BE_TSD",
-            "Bearish_TS_Hourly": "BE_TSH",
-            "Bearish_MOM": "BE_MOM",
-            "Bearish_Swing": "BE_SWG"
+            "Bearish_TS_Hourly": "BE_TSH"
         }
         df_new["screener_name"] = df_new["screener_name"].replace(names_map)
 
-        prob_map = {"High": "H", "Medium": "M"}
-        if "Probability" in df_new.columns:
-            df_new["Probability"] = df_new["Probability"].replace(prob_map)
-
-        def get_prob_rank(val):
-            if pd.isna(val): return 2
-            s = str(val).lower()
-            if s in ["high", "h"]: return 0
-            if s in ["medium", "m"]: return 1
-            return 2
-            
         def get_strategy_rank(val):
             if pd.isna(val): return 99
             s = str(val).upper()
             if "TSD" in s: return 0
             if "TSH" in s: return 1
-            if "MOM" in s: return 2
-            if "SWG" in s: return 3
             return 99
             
         df_new["is_bull"] = df_new["screener_name"].str.startswith("BU")
-        df_new["prob_rank"] = df_new.get("Probability", pd.Series(dtype=str)).apply(get_prob_rank)
         df_new["strategy_rank"] = df_new["screener_name"].apply(get_strategy_rank)
         
-        # Sort hierarchy: Bullish first -> Strategy (TS, MOM, SWING) -> Probability (H, M) -> Ticker
-        df_new = df_new.sort_values(by=["is_bull", "strategy_rank", "prob_rank", "stock"], ascending=[False, True, True, True])
-        df_new = df_new.drop(columns=["is_bull", "prob_rank", "strategy_rank"])
+        # Sort hierarchy: Bullish first -> Strategy -> Ticker
+        df_new = df_new.sort_values(by=["is_bull", "strategy_rank", "stock"], ascending=[False, True, True])
+        df_new = df_new.drop(columns=["is_bull", "strategy_rank"])
         
         print("\n" + "=" * 80)
         print("                               NEW MATCHES                               ")
@@ -307,12 +279,11 @@ def run_scan():
                 if "screener_name" not in df_existing.columns:
                     raise ValueError("Corrupt CSV header")
                     
-                # Ensure historic runs map tags to Probability and update to short names
-                if 'tags' in df_existing.columns and 'Probability' not in df_existing.columns:
-                    df_existing.rename(columns={'tags': 'Probability'}, inplace=True)
+                for col in ['tags', 'Probability']:
+                    if col in df_existing.columns:
+                        df_existing = df_existing.drop(columns=[col])
+
                 df_existing["screener_name"] = df_existing["screener_name"].replace(names_map)
-                if "Probability" in df_existing.columns:
-                    df_existing["Probability"] = df_existing["Probability"].replace(prob_map)
                     
                 # Erase all previous entries for the current market date to ensure a clean overwrite
                 current_date = df_new["marketdate"].iloc[0]
@@ -320,16 +291,15 @@ def run_scan():
                 
                 df_combined = pd.concat([df_existing, df_new], ignore_index=True)
                 
-                # Re-sort the final master csv historically and by strategy / probability
+                # Re-sort the final master csv historically and by strategy
                 df_combined["is_bull"] = df_combined["screener_name"].str.startswith("BU")
-                df_combined["prob_rank"] = df_combined.get("Probability", pd.Series(dtype=str)).apply(get_prob_rank)
                 df_combined["strategy_rank"] = df_combined.get("screener_name", pd.Series(dtype=str)).apply(get_strategy_rank)
                 
                 df_combined = df_combined.sort_values(
-                    by=["marketdate", "is_bull", "strategy_rank", "prob_rank", "stock"], 
-                    ascending=[False, False, True, True, True]
+                    by=["marketdate", "is_bull", "strategy_rank", "stock"], 
+                    ascending=[False, False, True, True]
                 )
-                df_combined = df_combined.drop(columns=["is_bull", "prob_rank", "strategy_rank"])
+                df_combined = df_combined.drop(columns=["is_bull", "strategy_rank"])
                 
                 df_combined.to_csv(csv_file, index=False)
             except Exception as e:
@@ -359,7 +329,7 @@ def run_scan():
     else:
         print("\nNo matches found today across any registered screeners.")
         if not os.path.exists(csv_file):
-            pd.DataFrame(columns=["marketdate", "screener_name", "stock", "tags"]).to_csv(csv_file, index=False)
+            pd.DataFrame(columns=["marketdate", "screener_name", "stock"]).to_csv(csv_file, index=False)
 
 if __name__ == "__main__":
     run_scan()
