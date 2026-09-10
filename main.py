@@ -205,7 +205,8 @@ def run_scan():
     
     names_map = {
         "Bullish_TS_Daily": "BU_TSD", "Bullish_TS_Hourly": "BU_TSH",
-        "Bearish_TS_Daily": "BE_TSD", "Bearish_TS_Hourly": "BE_TSH"
+        "Bearish_TS_Daily": "BE_TSD", "Bearish_TS_Hourly": "BE_TSH",
+        "Bullish_FUT": "BU_FUT", "Bearish_FUT": "BE_FUT"
     }
     short_screens = [names_map.get(name, name) for name in active_screens]
     print(f"Loaded {len(short_screens)} active screener(s): {short_screens}")
@@ -251,15 +252,18 @@ def run_scan():
             "Bullish_TS_Daily": "BU_TSD",
             "Bullish_TS_Hourly": "BU_TSH",
             "Bearish_TS_Daily": "BE_TSD",
-            "Bearish_TS_Hourly": "BE_TSH"
+            "Bearish_TS_Hourly": "BE_TSH",
+            "Bullish_FUT": "BU_FUT",
+            "Bearish_FUT": "BE_FUT"
         }
         df_new["screener_name"] = df_new["screener_name"].replace(names_map)
 
         def get_strategy_rank(val):
             if pd.isna(val): return 99
             s = str(val).upper()
-            if "TSD" in s: return 0
-            if "TSH" in s: return 1
+            if "FUT" in s: return 0  # Put Futures on top!
+            if "TSD" in s: return 1
+            if "TSH" in s: return 2
             return 99
             
         df_new["is_bull"] = df_new["screener_name"].str.startswith("BU")
@@ -269,10 +273,7 @@ def run_scan():
         df_new = df_new.sort_values(by=["is_bull", "strategy_rank", "stock"], ascending=[False, True, True])
         df_new = df_new.drop(columns=["is_bull", "strategy_rank"])
         
-        print("\n" + "=" * 80)
-        print("                               NEW MATCHES                               ")
-        print("=" * 80)
-        print(df_new.to_string(index=False))
+        # Suppressed detailed pandas table print per user request
 
         if os.path.exists(csv_file) and os.path.getsize(csv_file) > 0:
             try:

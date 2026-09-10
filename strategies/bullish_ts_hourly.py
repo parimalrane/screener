@@ -22,6 +22,8 @@ def check(df_daily: pd.DataFrame, df_weekly: pd.DataFrame, df_monthly: pd.DataFr
         # Super Tide Contingency (Monthly) - Ignores IPOs lacking 30-month history
         if len(df_monthly) >= 30:
             if not is_macd_up(df_monthly): return False
+            if not is_macd_pco(df_monthly): return False
+            if not is_price_above_sma(df_monthly, 20): return False
             
         # Tide Constraints (Weekly)
         if not is_macd_pco(df_weekly): return False

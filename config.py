@@ -9,5 +9,7 @@ STRATEGIES = {
     "Bullish_TS_Daily": True,
     "Bearish_TS_Daily": True,
     "Bullish_TS_Hourly": True,
-    "Bearish_TS_Hourly": True
+    "Bearish_TS_Hourly": True,
+    "Bullish_FUT": True,
+    "Bearish_FUT": True
 }

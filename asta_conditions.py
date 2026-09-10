@@ -492,3 +492,21 @@ def is_stochastic_sell(df: pd.DataFrame, strict_crossover: bool = True) -> bool:
         return (k.iloc[-1] < d.iloc[-1]) and (k.iloc[-2] >= d.iloc[-2])
     else:
         return k.iloc[-1] < d.iloc[-1]
+
+def is_stoch_oversold_waiting(df: pd.DataFrame, threshold: int = 30) -> bool:
+    """Helper: Stochastic is heavily oversold (K < threshold) and waiting to cross up (K <= D)"""
+    if len(df) < 20: return False
+    stoch_d = ta.stoch(df["High"], df["Low"], df["Close"], k=14, d=3, smooth_k=3)
+    if stoch_d is None or len(stoch_d) < 2: return False
+    k = stoch_d["STOCHk_14_3_3"]
+    d = stoch_d["STOCHd_14_3_3"]
+    return (k.iloc[-1] < threshold) and (k.iloc[-1] <= d.iloc[-1])
+
+def is_stoch_overbought_waiting(df: pd.DataFrame, threshold: int = 70) -> bool:
+    """Helper: Stochastic is heavily overbought (K > threshold) and waiting to cross down (K >= D)"""
+    if len(df) < 20: return False
+    stoch_d = ta.stoch(df["High"], df["Low"], df["Close"], k=14, d=3, smooth_k=3)
+    if stoch_d is None or len(stoch_d) < 2: return False
+    k = stoch_d["STOCHk_14_3_3"]
+    d = stoch_d["STOCHd_14_3_3"]
+    return (k.iloc[-1] > threshold) and (k.iloc[-1] >= d.iloc[-1])
