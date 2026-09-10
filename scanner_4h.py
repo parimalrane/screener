@@ -7,8 +7,11 @@ import warnings
 
 warnings.filterwarnings('ignore')
 
-UNIVERSE_FILE = "20260904_stocks.csv"
-RESULTS_FILE = "screener_4h_results.csv"
+import logging
+logging.getLogger('yfinance').setLevel(logging.CRITICAL)
+
+UNIVERSE_FILE = "data/20260904_stocks.csv"
+RESULTS_FILE = "output/screener_4h_results.csv"
 
 def get_tickers_by_rank():
     # Returns (bullish_tickers_list, bearish_tickers_list)
@@ -22,7 +25,8 @@ def get_tickers_by_rank():
         
         if zacks_col:
             for _, row in df.iterrows():
-                ticker = str(row[ticker_col]).strip()
+                # Replace dot with hyphen so Yahoo Finance reads BRK.B correctly as BRK-B
+                ticker = str(row[ticker_col]).strip().replace('.', '-')
                 if not ticker or ticker.lower() == 'nan': continue
                 
                 try:
@@ -161,8 +165,8 @@ def main():
         
         # Decide output filename based on execution type
         out_file = RESULTS_FILE
-        if mode == "BU": out_file = "screener_4h_BU_results.csv"
-        if mode == "BE": out_file = "screener_4h_BE_results.csv"
+        if mode == "BU": out_file = "output/screener_4h_BU_results.csv"
+        if mode == "BE": out_file = "output/screener_4h_BE_results.csv"
             
         df_res.to_csv(out_file, index=False)
         print(f"\nPROCESS COMPLETE. Saved {len(df_res)} matches to {out_file}")

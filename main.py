@@ -6,6 +6,9 @@ import pkgutil
 import pandas as pd
 import requests
 import yfinance as yf
+import logging
+
+logging.getLogger('yfinance').setLevel(logging.CRITICAL)
 
 import strategies
 from registry import SCREENER_REGISTRY
@@ -13,7 +16,7 @@ import config
 import threading
 
 DATA_DIR = "data"
-IGNORE_FILE = "ignored_tickers.txt"
+IGNORE_FILE = "data/ignored_tickers.txt"
 os.makedirs(DATA_DIR, exist_ok=True)
 
 ignore_lock = threading.Lock()
@@ -42,9 +45,9 @@ for _, module_name, _ in pkgutil.iter_modules(strategies.__path__):
 def get_all_tickers() -> dict:
     try:
         import glob
-        files = glob.glob("*_stocks.csv")
+        files = glob.glob("data/*_stocks.csv")
         files.sort()
-        target_file = files[-1] if files else "stocks_universe.csv"
+        target_file = files[-1] if files else "data/stocks_universe.csv"
         
         print(f"Loading universe from: {target_file}")
         df = pd.read_csv(target_file)
@@ -56,7 +59,7 @@ def get_all_tickers() -> dict:
         ticker_data = {}
         
         for _, row in df.iterrows():
-            t = str(row[ticker_col]).strip()
+            t = str(row[ticker_col]).strip().replace('.', '-')
             if t in ignored or t.lower() == "nan" or not t:
                 continue
                 
@@ -239,7 +242,7 @@ def run_scan():
             if res:
                 all_matches.extend(res)
 
-    csv_file = "screener_results.csv"
+    csv_file = "output/screener_results.csv"
 
     if all_matches:
         df_new = pd.DataFrame(all_matches)
