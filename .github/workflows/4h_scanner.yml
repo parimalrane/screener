@@ -1,0 +1,45 @@
+name: 4-Hour Oversold/Overbought Tracker
+
+on:
+  schedule:
+    # 17:30 UTC = 1:30 PM EDT (Mon-Fri) - Mid-Day Check
+    - cron: '30 17 * * 1-5'
+    # 20:15 UTC = 4:15 PM EDT (Mon-Fri) - Closing Print
+    - cron: '15 20 * * 1-5'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  run-4h-tracker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Bullish 4H Scanner
+        run: python scanner_4h.py BU
+        
+      - name: Run Bearish 4H Scanner
+        run: python scanner_4h.py BE
+
+      - name: Commit and Push Results
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git pull origin main --rebase
+          git add screener_4h_BU_results.csv screener_4h_BE_results.csv
+          git diff --staged --quiet || (git commit -m "Update 4H Scanner Results [skip ci]" && git push origin main)
