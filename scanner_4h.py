@@ -1,14 +1,22 @@
 import os
+import sys
+import pkgutil
+import importlib
+import concurrent.futures
 import pandas as pd
 import yfinance as yf
-import pandas_ta as ta
-import concurrent.futures
-import warnings
-
-warnings.filterwarnings('ignore')
-
 import logging
+
+warnings = __import__("warnings")
+warnings.filterwarnings('ignore')
 logging.getLogger('yfinance').setLevel(logging.CRITICAL)
+
+import strategies
+from registry import SCREENER_4H_REGISTRY
+
+# Dynamically import all strategy modules (the 4H decorator ensures we only run 4H ones)
+for _, module_name, _ in pkgutil.iter_modules(strategies.__path__):
+    importlib.import_module(f"strategies.{module_name}")
 
 UNIVERSE_FILE = "data/20260904_stocks.csv"
 RESULTS_FILE = "output/screener_4h_results.csv"
@@ -25,18 +33,13 @@ def get_tickers_by_rank():
         
         if zacks_col:
             for _, row in df.iterrows():
-                # Replace dot with hyphen so Yahoo Finance reads BRK.B correctly as BRK-B
                 ticker = str(row[ticker_col]).strip().replace('.', '-')
                 if not ticker or ticker.lower() == 'nan': continue
                 
                 try:
                     rank = int(float(row[zacks_col]))
-                    # Bullish pool: Zacks Rank 1 (Strong Buy) and 2 (Buy)
-                    if rank in [1, 2]:
-                        bullish_list.append(ticker)
-                    # Bearish pool: Zacks Rank 4 (Sell) and 5 (Strong Sell)
-                    elif rank in [4, 5]:
-                        bearish_list.append(ticker)
+                    if rank in [1, 2]: bullish_list.append(ticker)
+                    elif rank in [4, 5]: bearish_list.append(ticker)
                 except:
                     pass
                     
@@ -45,125 +48,87 @@ def get_tickers_by_rank():
         print("Error loading universe:", e)
         return [], []
 
-def evaluate_stock(ticker, direction):
-    # direction is either "BU" or "BE"
+def fetch_data(ticker):
+    """Downloads required arrays for 4H Strategies"""
     try:
         df_daily = yf.download(ticker, period="1y", interval="1d", progress=False)
-        if df_daily.empty: return None
+        if df_daily.empty: return None, None
         if isinstance(df_daily.columns, pd.MultiIndex):
             df_daily.columns = df_daily.columns.get_level_values(0)
             
         resample_rules = {"Open": "first", "High": "max", "Low": "min", "Close": "last", "Volume": "sum"}
         df_weekly = df_daily.resample("W-FRI").agg(resample_rules).dropna()
-        if len(df_weekly) < 30: return None
         
-        close_w = df_weekly["Close"]
-        sma_20 = ta.sma(close_w, length=20)
-        macd_df = ta.macd(close_w, fast=12, slow=26, signal=9)
-        rsi_w = ta.rsi(close_w, length=14)
-        
-        if sma_20 is None or macd_df is None or rsi_w is None: return None
-        
-        macd_col = [c for c in macd_df.columns if c.startswith("MACD_")][0]
-        sig_col = [c for c in macd_df.columns if c.startswith("MACDs_")][0]
-        
-        # --- WEEKLY DIRECTIONAL CHECKS ---
-        if direction == "BU":
-            if close_w.iloc[-1] < sma_20.iloc[-1]: return None
-            if macd_df[macd_col].iloc[-1] <= macd_df[sig_col].iloc[-1]: return None
-            if rsi_w.iloc[-1] <= 40: return None
-        else: # "BE"
-            if close_w.iloc[-1] > sma_20.iloc[-1]: return None
-            if macd_df[macd_col].iloc[-1] >= macd_df[sig_col].iloc[-1]: return None
-            if rsi_w.iloc[-1] >= 60: return None
-
-        # --- 4 HOUR CHECKS ---
         df_1h = yf.download(ticker, period="30d", interval="1h", progress=False)
-        if df_1h.empty: return None
+        if df_1h.empty: return df_weekly, None
         if isinstance(df_1h.columns, pd.MultiIndex):
             df_1h.columns = df_1h.columns.get_level_values(0)
             
-        # Group into AM (<=12:30) and PM (>12:30) blocks to create Two 4H candles per day
         df_1h['DateOnly'] = df_1h.index.date
         df_1h['Session'] = df_1h.index.hour <= 12  
         df_4h = df_1h.groupby(['DateOnly', 'Session']).agg(resample_rules).dropna().sort_index()
         
-        if len(df_4h) < 20: return None
-        
-        stoch_d = ta.stoch(df_4h["High"], df_4h["Low"], df_4h["Close"], k=14, d=3, smooth_k=3)
-        if stoch_d is None or len(stoch_d) < 3: return None
-        
-        k = stoch_d["STOCHk_14_3_3"]
-        d = stoch_d["STOCHd_14_3_3"]
-        
-        # --- 4 HOUR DIRECTIONAL CHECKS ---
-        if direction == "BU":
-            # Was < 20 recently, and just crossed UP
-            extreme = (k.iloc[-2] < 20) or (k.iloc[-3] < 20)
-            if not extreme: return None
-            crossed = (k.iloc[-1] > d.iloc[-1]) and (k.iloc[-2] <= d.iloc[-2])
-            if not crossed: return None
-            screen_name = "BU_4OS"
-            
-        else:
-            # Was > 80 recently, and just crossed DOWN
-            extreme = (k.iloc[-2] > 80) or (k.iloc[-3] > 80)
-            if not extreme: return None
-            crossed = (k.iloc[-1] < d.iloc[-1]) and (k.iloc[-2] >= d.iloc[-2])
-            if not crossed: return None
-            screen_name = "BE_4OS"
-            
-        return {
-            "marketdate": df_daily.index[-1].strftime("%Y%m%d"),
-            "screener_name": screen_name,
-            "stock": ticker,
-            "Latest_Price": round(df_daily["Close"].iloc[-1], 2),
-            "4H_Stoch_K": round(k.iloc[-1], 2),
-            "4H_Stoch_D": round(d.iloc[-1], 2)
-        }
-        
+        return df_weekly, df_4h
     except Exception:
-        return None
+        return None, None
 
-import sys
+def evaluate_stock(ticker, screeners_to_run):
+    try:
+        df_weekly, df_4h = fetch_data(ticker)
+        if df_weekly is None or df_4h is None: return []
+        
+        matches = []
+        for name, func in screeners_to_run.items():
+            if func(df_4h, df_weekly):
+                matches.append({
+                    "marketdate": df_4h.index[-1][0].strftime("%Y%m%d"),
+                    "screener_name": name,
+                    "stock": ticker
+                })
+        return matches
+    except Exception:
+        return []
 
 def main():
     mode = "BOTH"
     if len(sys.argv) > 1:
         mode = sys.argv[1].upper()
         
-    print(f"= Starting Optimized 4-Hour Tracker (Mode: {mode}) =")
-    bullish_tickers, bearish_tickers = get_tickers_by_rank()
+    print(f"= Starting Clean Architecture 4-Hour Engine (Mode: {mode}) =")
     
+    # Identify which strategies to route
+    bullish_screens = {k: v for k, v in SCREENER_4H_REGISTRY.items() if k.startswith("BU")}
+    bearish_screens = {k: v for k, v in SCREENER_4H_REGISTRY.items() if k.startswith("BE")}
+    
+    bullish_tickers, bearish_tickers = get_tickers_by_rank()
     results = []
     
-    # Process Bullish
-    if mode in ["BU", "BOTH"] and bullish_tickers:
-        print(f"Processing BU_4OS on {len(bullish_tickers)} Zacks Rank 1 & 2 stocks...")
+    # Process Bullish Route
+    if mode in ["BU", "BOTH"] and bullish_tickers and bullish_screens:
+        print(f"Routing {len(bullish_tickers)} Zacks [1/2] stocks to: {list(bullish_screens.keys())}...")
         with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-            future_to_tick = {executor.submit(evaluate_stock, t, "BU"): t for t in bullish_tickers}
+            future_to_tick = {executor.submit(evaluate_stock, t, bullish_screens): t for t in bullish_tickers}
             for future in concurrent.futures.as_completed(future_to_tick):
                 res = future.result()
-                if res:
-                    print(f"{res['stock']}")
-                    results.append(res)
+                for match in res:
+                    print(f"{match['stock']}")
+                    results.append(match)
                     
-    # Process Bearish
-    if mode in ["BE", "BOTH"] and bearish_tickers:
-        print(f"\nProcessing BE_4OS on {len(bearish_tickers)} Zacks Rank 4 & 5 stocks...")
+    # Process Bearish Route
+    if mode in ["BE", "BOTH"] and bearish_tickers and bearish_screens:
+        print(f"\nRouting {len(bearish_tickers)} Zacks [4/5] stocks to: {list(bearish_screens.keys())}...")
         with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-            future_to_tick = {executor.submit(evaluate_stock, t, "BE"): t for t in bearish_tickers}
+            future_to_tick = {executor.submit(evaluate_stock, t, bearish_screens): t for t in bearish_tickers}
             for future in concurrent.futures.as_completed(future_to_tick):
                 res = future.result()
-                if res:
-                    print(f"{res['stock']}")
-                    results.append(res)
+                for match in res:
+                    print(f"{match['stock']}")
+                    results.append(match)
                     
     df_res = pd.DataFrame(results)
     if not df_res.empty:
         df_res = df_res.sort_values(by=["screener_name", "stock"])
         
-        # Decide output filename based on execution type
         out_file = RESULTS_FILE
         if mode == "BU": out_file = "output/screener_4h_BU_results.csv"
         if mode == "BE": out_file = "output/screener_4h_BE_results.csv"
@@ -171,7 +136,7 @@ def main():
         df_res.to_csv(out_file, index=False)
         print(f"\nPROCESS COMPLETE. Saved {len(df_res)} matches to {out_file}")
     else:
-        print("\nPROCESS COMPLETE. No stocks matched the 4-Hour conditions today.")
+        print("\nPROCESS COMPLETE. No stocks matched intraday strategies.")
 
 if __name__ == '__main__':
     main()
