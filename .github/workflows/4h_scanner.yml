@@ -31,10 +31,23 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run Bullish 4H Scanner
-        run: python scanner_4h.py BU
+        run: python scanner_4h.py BU | tee terminal_output.txt
         
       - name: Run Bearish 4H Scanner
-        run: python scanner_4h.py BE
+        run: python scanner_4h.py BE | tee -a terminal_output.txt
+
+      - name: Send Email Notification
+        continue-on-error: true
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: parimalrane@gmail.com
+          password: ${{ secrets.GMAIL_PASSWORD }}
+          subject: ASTA 4-Hour Tracker Results
+          body: file://terminal_output.txt
+          to: parimalrane@gmail.com
+          from: ASTA Screener Bot
 
       - name: Commit and Push Results
         run: |

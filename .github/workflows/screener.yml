@@ -30,7 +30,21 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run Screener
-        run: python main.py
+        run: |
+          python main.py | tee terminal_output.txt
+
+      - name: Send Email Notification
+        continue-on-error: true
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: parimalrane@gmail.com
+          password: ${{ secrets.GMAIL_PASSWORD }}
+          subject: ASTA Master Screener - Daily Results
+          body: file://terminal_output.txt
+          to: parimalrane@gmail.com
+          from: ASTA Screener Bot
 
       - name: Commit and Push Appended CSV
         run: |
