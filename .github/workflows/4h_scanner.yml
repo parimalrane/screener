@@ -1,11 +1,8 @@
 name: 4-Hour Oversold/Overbought Tracker
 
 on:
-  schedule:
-    # 17:30 UTC = 1:30 PM EDT (Mon-Fri) - Mid-Day Check
-    - cron: '30 17 * * 1-5'
-    # 20:15 UTC = 4:15 PM EDT (Mon-Fri) - Closing Print
-    - cron: '15 20 * * 1-5'
+  repository_dispatch:
+    types: [trigger-4h-scanner]
   workflow_dispatch:
 
 permissions:

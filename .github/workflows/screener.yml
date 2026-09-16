@@ -1,10 +1,8 @@
 name: Daily Stock Screener
 
 on:
-  schedule:
-    # 20:30 UTC = 4:30 PM EDT (Mon-Fri)
-    # 21:30 UTC = 4:30 PM EST (Mon-Fri)
-    - cron: '30 20 * * 1-5'
+  repository_dispatch:
+    types: [trigger-main-screener]
   workflow_dispatch:
 
 permissions:
