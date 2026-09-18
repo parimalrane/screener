@@ -2,7 +2,7 @@ import pandas as pd
 from registry import register_4h_screener
 from asta_conditions import is_macd_nco, is_price_below_sma, is_rsi_below
 
-@register_4h_screener("BE_4OS")
+@register_4h_screener("Bearish_intraday")
 def check(df_4h: pd.DataFrame, df_weekly: pd.DataFrame):
     try:
         if len(df_weekly) < 30 or len(df_4h) < 20:

@@ -97,8 +97,8 @@ def main():
     print(f"= Starting Clean Architecture 4-Hour Engine (Mode: {mode}) =")
     
     # Identify which strategies to route
-    bullish_screens = {k: v for k, v in SCREENER_4H_REGISTRY.items() if k.startswith("BU")}
-    bearish_screens = {k: v for k, v in SCREENER_4H_REGISTRY.items() if k.startswith("BE")}
+    bullish_screens = {k: v for k, v in SCREENER_4H_REGISTRY.items() if k.startswith("Bullish")}
+    bearish_screens = {k: v for k, v in SCREENER_4H_REGISTRY.items() if k.startswith("Bearish")}
     
     bullish_tickers, bearish_tickers = get_tickers_by_rank()
     results = []

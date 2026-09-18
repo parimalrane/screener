@@ -204,9 +204,9 @@ def run_scan():
     active_screens = [name for name in SCREENER_REGISTRY.keys() if getattr(config, "STRATEGIES", {}).get(name, True)]
     
     names_map = {
-        "Bullish_TS_Daily": "BU_TSD", "Bullish_TS_Hourly": "BU_TSH",
-        "Bearish_TS_Daily": "BE_TSD", "Bearish_TS_Hourly": "BE_TSH",
-        "Bullish_FUT": "BU_FUT", "Bearish_FUT": "BE_FUT"
+        "Bullish_TS_Daily": "Bullish_daily", "Bullish_TS_Hourly": "Bullish_hourly",
+        "Bearish_TS_Daily": "Bearish_daily", "Bearish_TS_Hourly": "Bearish_hourly",
+        "Bullish_FUT": "Bullish_ready", "Bearish_FUT": "Bearish_ready"
     }
     short_screens = [names_map.get(name, name) for name in active_screens]
     print(f"Loaded {len(short_screens)} active screener(s): {short_screens}")
@@ -249,24 +249,24 @@ def run_scan():
         df_new = pd.DataFrame(all_matches)
         
         names_map = {
-            "Bullish_TS_Daily": "BU_TSD",
-            "Bullish_TS_Hourly": "BU_TSH",
-            "Bearish_TS_Daily": "BE_TSD",
-            "Bearish_TS_Hourly": "BE_TSH",
-            "Bullish_FUT": "BU_FUT",
-            "Bearish_FUT": "BE_FUT"
+            "Bullish_TS_Daily": "Bullish_daily",
+            "Bullish_TS_Hourly": "Bullish_hourly",
+            "Bearish_TS_Daily": "Bearish_daily",
+            "Bearish_TS_Hourly": "Bearish_hourly",
+            "Bullish_FUT": "Bullish_ready",
+            "Bearish_FUT": "Bearish_ready"
         }
         df_new["screener_name"] = df_new["screener_name"].replace(names_map)
 
         def get_strategy_rank(val):
             if pd.isna(val): return 99
             s = str(val).upper()
-            if "FUT" in s: return 0  # Put Futures on top!
-            if "TSD" in s: return 1
-            if "TSH" in s: return 2
+            if "READY" in s: return 0  
+            if "DAILY" in s: return 1
+            if "HOURLY" in s: return 2
             return 99
             
-        df_new["is_bull"] = df_new["screener_name"].str.startswith("BU")
+        df_new["is_bull"] = df_new["screener_name"].str.startswith("Bullish")
         df_new["strategy_rank"] = df_new["screener_name"].apply(get_strategy_rank)
         
         # Sort hierarchy: Bullish first -> Strategy -> Ticker
@@ -296,7 +296,7 @@ def run_scan():
                 df_combined = pd.concat([df_existing, df_new], ignore_index=True)
                 
                 # Re-sort the final master csv historically and by strategy
-                df_combined["is_bull"] = df_combined["screener_name"].str.startswith("BU")
+                df_combined["is_bull"] = df_combined["screener_name"].str.startswith("Bullish")
                 df_combined["strategy_rank"] = df_combined.get("screener_name", pd.Series(dtype=str)).apply(get_strategy_rank)
                 
                 df_combined = df_combined.sort_values(
