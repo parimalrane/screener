@@ -1,0 +1,75 @@
+=== 2026-09-17 SCAN ===
+Watchlist: 353 | Signals: 13TMG / 28TMJ / 4J+G
+Bias: 17 bullish-only | 14 bearish-only | 3 mixed
+
+--- LEGEND FOR AI ---
+SIG Types      : TMG = Short Covering | TMJ = Short Build-Up | J+G = Combo
+CONF           : TRUE if underlying stock confirmed the directional flow
+PRICE Δ        : Intraday price change of the options premium
+(+X, ΣY)       : Breadth: +X identical block trades found | Macro Net: Aggregated total OI volume of Y across all strikes
+Context Flags  : [IVR+] = High IV Rank (Sell premium) | [OVRP] = IV > RV (Expensive) | [ER] = Imminent Earnings
+                 [IVR-] = Low IV Rank (Buy premium)   | [UNDP] = IV < RV (Underpriced) | [UVOL] = Unusually High Volume
+---------------------
+
+--- BULLISH DIRECTION ---
+STOCK   | SIG | TYPE  |      MONEY |   STRIKE | EXP        | DTE | CONF |   NOTIONAL |     OI CHG |  PRICE Δ
+AAPL    | J+G | Combo |        MIX |    Multi | Multi      |   1 | TRUE | $1,025,125 |            |         
+AAPL    | TMG | Call  |   ITM 2.1% |   330.00 | 2026-09-18 |   1 | TRUE | $1,025,125 |     -1,390 |    +2.95
+AAPL    | TMJ | Put   |   OTM 2.1% |   330.00 | 2026-09-18 |   1 | TRUE |   $100,880 |      3,880 |    -1.52  (+2, Σ8,240)
+AMZN    | J+G | Combo |        MIX |    Multi | Multi      |  29 | TRUE |    $46,485 |            |         
+AMZN    | TMG | Call  |  OTM 19.4% |   300.00 | 2026-10-16 |  29 | TRUE |    $46,485 |     -2,066 |    +0.02
+AMZN    | TMJ | Put   |   OTM 2.5% |   245.00 | 2026-09-25 |   8 | TRUE |   $658,486 |      3,689 |    -2.34
+NVDA    | J+G | Combo |        MIX |    Multi | Multi      |   1 | TRUE | $6,521,275 |            |         
+NVDA    | TMG | Call  |   ITM 2.0% |   215.00 | 2026-09-18 |   1 | TRUE | $6,521,275 |    -13,729 |    +2.83  (+3, Σ-21,599)
+NVDA    | TMJ | Put   |   OTM 2.0% |   215.00 | 2026-09-25 |   8 | TRUE |   $303,998 |      1,567 |    -2.98  (+1, Σ3,231)
+ACHR    | TMG | Call  |  OTM 11.1% |     6.00 | 2026-10-16 |  29 | TRUE |    $29,771 |     -1,654 |    +0.03
+AMC     | TMG | Call  |   ITM 7.7% |     2.50 | 2026-09-18 |   1 | TRUE |    $52,143 |     -2,483 |    +0.04
+GME     | TMG | Call  |   ITM 3.4% |    22.00 | 2026-09-18 |   1 | TRUE |    $87,516 |     -1,144 |    +0.42
+HOOD    | TMG | Call  |   OTM 4.7% |   115.00 | 2026-09-18 |   1 | TRUE |   $109,200 |     -4,200 |    +0.12
+INTC    | TMG | Call  |   ITM 8.1% |   100.00 | 2027-03-19 | 183 | TRUE | $7,464,520 |     -2,968 |    +5.32  (+1, Σ-4,462)
+NOK     | TMG | Call  |   ITM 5.7% |    10.00 | 2026-09-18 |   1 | TRUE |   $248,337 |     -4,038 |    +0.30
+ORCL    | TMG | Call  |   OTM 2.9% |   155.00 | 2026-09-18 |   1 | TRUE |    $73,854 |     -1,492 |    +0.32
+WULF    | TMG | Call  |   ITM 2.9% |    16.00 | 2026-11-20 |  64 | TRUE |   $623,931 |     -2,409 |    +0.54  (+1, Σ-3,631)
+CLF     | TMJ | Put   |   ITM 1.9% |    13.00 | 2026-10-02 |  15 | TRUE |   $432,929 |      5,378 |    -0.38
+FIG     | TMJ | Put   |   ITM 3.0% |    24.00 | 2026-09-18 |   1 | TRUE |   $112,455 |      1,785 |    -0.64
+JNJ     | TMJ | Put   |   OTM 3.8% |   260.00 | 2026-09-25 |   8 | TRUE |   $111,778 |      1,733 |    -0.64
+LEN     | TMJ | Put   |   OTM 2.1% |    78.00 | 2026-09-25 |   8 | TRUE |   $160,769 |      1,398 |    -1.62  (+1, Σ2,779)
+TOST    | TMJ | Put   |   ITM 1.1% |    31.00 | 2026-09-18 |   1 | FALS |   $185,863 |      3,609 |    -0.07
+TSLA    | TMJ | Put   |   OTM 1.0% |   362.50 | 2026-09-18 |   1 | TRUE |   $212,565 |      1,149 |    -5.82  (+3, Σ5,222)
+
+--- BEARISH DIRECTION ---
+STOCK   | SIG | TYPE  |      MONEY |   STRIKE | EXP        | DTE | CONF |   NOTIONAL |     OI CHG |  PRICE Δ
+TTWO    | TMG | Put   |  ITM 11.6% |   235.00 | 2026-09-18 |   1 | TRUE | $4,345,230 |     -1,803 |    +0.80
+AGNC    | TMJ | Call  |   ATM 0.9% |    10.00 | 2029-01-19 | 855 | FALS |   $482,700 |      8,045 |    -0.03
+BAC     | TMJ | Call  |   OTM 1.4% |    59.00 | 2026-09-25 |   8 | FALS |   $347,189 |      8,366 |    -0.08  (+3, Σ24,446)
+CMG     | TMJ | Call  |   OTM 1.5% |    34.00 | 2026-09-18 |   1 | TRUE |    $18,962 |      1,517 |    -0.19
+DHT     | TMJ | Call  |   ATM 0.8% |    23.00 | 2026-09-18 |   1 | TRUE |    $40,475 |      1,619 |    -0.15
+HIMS    | TMJ | Call  |   ATM 0.4% |    28.00 | 2026-09-25 |   8 | TRUE |   $250,168 |      2,349 |    -0.18
+META    | TMJ | Call  |   OTM 1.1% |   690.00 | 2026-09-18 |   1 | FALS |   $568,890 |      1,806 |    -0.20
+NCLH    | TMJ | Call  |   OTM 4.2% |    15.00 | 2026-10-16 |  29 | TRUE |    $84,873 |      1,489 |    -0.01
+ON      | TMJ | Call  |   OTM 2.5% |    70.00 | 2026-09-18 |   1 | FALS |    $53,062 |      1,415 |    -0.20
+OXY     | TMJ | Call  |   OTM 2.9% |    61.00 | 2026-09-25 |   8 | NEUT |   $403,480 |      8,677 |    -0.20
+PDD     | TMJ | Call  |   OTM 2.9% |    80.00 | 2027-01-15 | 120 | TRUE |   $646,400 |      1,010 |    -0.17
+PLTR    | TMJ | Call  |   ATM 0.7% |   175.00 | 2026-09-18 |   1 | FALS |   $465,253 |      1,786 |    -0.06
+RIVN    | TMJ | Call  |   ATM 0.6% |    15.50 | 2026-09-18 |   1 | FALS |    $27,165 |      1,598 |    -0.02
+XOM     | TMJ | Call  |   OTM 4.1% |   170.00 | 2026-09-25 |   8 | NEUT |    $84,364 |      1,288 |    -0.24
+
+--- SIDEWAYS ---
+STOCK   | DIR     | SIG | TYPE  |      MONEY |   STRIKE | EXP        | DTE | CONF |   NOTIONAL |     OI CHG |  PRICE Δ
+SPCX    | BULLISH | J+G | Combo |        MIX |    Multi | Multi      |   1 | TRUE | $3,758,039 |            |         
+SPCX    | BULLISH | TMG | Call  |   ITM 3.1% |   150.00 | 2026-09-18 |   1 | TRUE | $3,758,039 |     -7,227 |    +1.75  (+1, Σ-19,513)
+SPCX    | bearish | TMJ | Call  |   OTM 3.4% |   160.00 | 2026-09-18 |   1 | FALS |   $195,132 |      5,656 |    -0.12
+SPCX    | BULLISH | TMJ | Put   |   OTM 3.1% |   150.00 | 2026-09-25 |   8 | TRUE |   $469,793 |      1,902 |    -2.38  (+4, Σ9,585)
+        |         |     |       |          |            |     |       |      |            | net_signal: | +23,442
+SOFI    | bearish | TMJ | Call  |   OTM 1.6% |    17.00 | 2026-09-25 |   8 | TRUE |    $92,462 |      2,845 |    -0.14
+SOFI    | BULLISH | TMJ | Put   |   OTM 4.4% |    16.00 | 2026-09-25 |   8 | FALS |    $57,565 |      3,970 |    -0.04
+        |         |     |       |          |            |     |       |      |            | net_signal: | +1,125
+CIFR    | bearish | TMJ | Call  |   OTM 3.3% |    17.50 | 2026-09-18 |   1 | FALS |    $40,735 |      2,089 |    -0.10
+CIFR    | BULLISH | TMJ | Put   |   OTM 2.6% |    16.50 | 2026-09-18 |   1 | TRUE |    $36,575 |      1,925 |    -0.28
+        |         |     |       |          |            |     |       |      |            | net_signal: | -164
+
+--- TRADINGVIEW WATCHLIST ---
+###BU_Options,AAPL,AMZN,NVDA,ACHR,AMC,GME,HOOD,INTC,NOK,ORCL,WULF,CLF,FIG,JNJ,LEN,TOST,TSLA,
+###BE_Options,TTWO,AGNC,BAC,CMG,DHT,HIMS,META,NCLH,ON,OXY,PDD,PLTR,RIVN,XOM,
+###SIDEWAYS_Options,SPCX,SOFI,CIFR,
+

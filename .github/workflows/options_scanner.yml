@@ -1,0 +1,74 @@
+name: Daily Options Flow Scanner
+
+on:
+  schedule:
+    # 22:00 UTC perfectly maps to 6:00 PM EDT (Eastern Time)
+    - cron: '0 22 * * 1-5'
+  repository_dispatch:
+    types: [trigger-options-scanner]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  run-options-scanner:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas yfinance termcolor
+
+      - name: Run Institutional Options Scanner
+        run: |
+          # Extract today's date formatted as MM-DD-YYYY
+          TODAY=$(date +'%m-%d-%Y')
+          
+          echo "Scanning Barchart options data for: $TODAY"
+          
+          if [ -f "data/most-active-stock-options-$TODAY.csv" ]; then
+             python analyze_flow.py \
+               --active "data/most-active-stock-options-$TODAY.csv" \
+               --decoi "data/stocks-decrease-change-in-open-interest-$TODAY.csv" \
+               --incoi "data/stocks-increase-change-in-open-interest-$TODAY.csv" \
+               --unusual "data/unusual-stock-options-activity-$TODAY.csv" \
+               --out "output/flagged_options_$TODAY.txt" | tee terminal_output.txt
+          else
+             echo "CSV files were not uploaded to GitHub today ($TODAY)."
+             exit 1
+          fi
+
+      - name: Send Email Notification
+        continue-on-error: true
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: parimalrane@gmail.com
+          password: ${{ secrets.GMAIL_PASSWORD }}
+          subject: Institutional Options Flow Report
+          body: file://terminal_output.txt
+          to: parimalrane@gmail.com
+          from: ASTA Trade Bot
+
+      - name: Commit and Push Results
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git stash --include-untracked
+          git pull origin main --rebase
+          git stash pop || true
+          git add output/flagged_options_*.txt
+          git add snapshots/
+          git commit -m "Update Options Scanner Report [skip ci]" || echo "No changes"
+          git push origin main
