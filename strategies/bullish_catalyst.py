@@ -1,6 +1,6 @@
 import pandas as pd
 from registry import register_screener
-from asta_conditions import is_bbdnc, is_rsi_above
+from asta_conditions import is_bbdnc, is_rsi_above, is_macd_up
 
 @register_screener("Bullish_Catalyst")
 def check(df_daily: pd.DataFrame, df_weekly: pd.DataFrame, df_monthly: pd.DataFrame):
@@ -10,7 +10,7 @@ def check(df_daily: pd.DataFrame, df_weekly: pd.DataFrame, df_monthly: pd.DataFr
     - Change > 10% from previous close
     - Current Volume > 1M
     - Relative Volume > 2
-    - Monthly: Downside BB not challenged
+    - Monthly: Downside BB not challenged, MACD is UP
     - Weekly: Downside BB not challenged, RSI > 40
     """
     try:
@@ -21,6 +21,7 @@ def check(df_daily: pd.DataFrame, df_weekly: pd.DataFrame, df_monthly: pd.DataFr
         # Monthly Conditions (Skipped if < 20 months of data for new IPO)
         if len(df_monthly) >= 20:
             if not is_bbdnc(df_monthly): return False
+            if not is_macd_up(df_monthly): return False
 
         # Weekly Conditions
         if not is_bbdnc(df_weekly): return False
