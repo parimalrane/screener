@@ -49,7 +49,6 @@ def get_all_tickers() -> dict:
         files.sort()
         target_file = files[-1] if files else "data/stocks_universe.csv"
         
-        print(f"Loading universe from: {target_file}")
         df = pd.read_csv(target_file)
         
         ticker_col = "Ticker" if "Ticker" in df.columns else df.columns[0]
@@ -209,7 +208,7 @@ def run_scan():
         "Bullish_FUT": "Bullish_ready", "Bearish_FUT": "Bearish_ready"
     }
     short_screens = [names_map.get(name, name) for name in active_screens]
-    print(f"Loaded {len(short_screens)} active screener(s): {short_screens}")
+    # Print removed per user request
     
     # Check if network update is even necessary by comparing cache to SPY's latest date
     needs_update = True
@@ -312,7 +311,7 @@ def run_scan():
         else:
             df_new.to_csv(csv_file, index=False)
 
-        print(f"\nSaved to {csv_file}")
+        # Print removed per user request
         
         # -----------------------------------------------------
         # TRADINGVIEW WATCHLIST EXPORT BUILDER
