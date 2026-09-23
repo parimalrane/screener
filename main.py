@@ -225,13 +225,23 @@ def run_scan():
                     print("Yahoo Finance API rate limit detected. Bypassing massive bulk download to protect cache...")
                     needs_update = False
                 elif not df_test.empty:
+                    # Strip timezones forcefully so naive and aware timestamps don't throw silent TypeErrors
+                    local_last = df_test.index[-1]
+                    if local_last.tzinfo is not None: local_last = local_last.tz_localize(None)
+                    
+                    remote_last = spy.index[-1]
+                    if remote_last.tzinfo is not None: remote_last = remote_last.tz_localize(None)
+                    
                     # If local cache matches or exceeds Yahoo's latest market tick, skip massive download
-                    if df_test.index[-1] >= spy.index[-1]:
+                    if local_last >= remote_last:
+                        print("Local database is fully up-to-date. Instantly processing from cache...")
                         needs_update = False
-            except Exception:
+            except Exception as e:
+                print(f"Update check failed, falling back to download: {e}")
                 pass
                 
     if needs_update:
+        print("Fetching latest delta updates from Yahoo Finance...")
         # bulk update without verbose progress bars
         bulk_update = yf.download(tickers, period="5d", interval="1d", progress=False, auto_adjust=True)
     else:

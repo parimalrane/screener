@@ -249,7 +249,7 @@ def is_stochastic_buy(df: pd.DataFrame, strict_crossover: bool = True) -> bool:
     """Helper: Stochastic Oversold Buy Signal"""
     if len(df) < 14: return False
     stoch_df = ta.stoch(df["High"], df["Low"], df["Close"], k=14, d=3, smooth_k=3)
-    if stoch_df is None or len(stoch_df) < 3: return False
+    if stoch_df is None or len(stoch_df) < 5: return False
     
     k_col = [c for c in stoch_df.columns if c.startswith("STOCHk")][0]
     d_col = [c for c in stoch_df.columns if c.startswith("STOCHd")][0]
@@ -257,10 +257,14 @@ def is_stochastic_buy(df: pd.DataFrame, strict_crossover: bool = True) -> bool:
     k = stoch_df[k_col]
     d = stoch_df[d_col]
     
-    oversold = k.iloc[-3] < 30
+    # Needs to have been oversold recently (any of the last 5 days)
+    oversold = any(k.iloc[-i] < 30 for i in range(1, 6))
+    
     if strict_crossover:
+        # Crossed EXACTLY on the current candle
         trigger = (k.iloc[-1] > d.iloc[-1]) and (k.iloc[-2] <= d.iloc[-2])
     else:
+        # Is currently positive
         trigger = k.iloc[-1] > d.iloc[-1]
         
     return oversold and trigger
@@ -269,7 +273,7 @@ def is_stochastic_sell(df: pd.DataFrame, strict_crossover: bool = True) -> bool:
     """Helper: Stochastic Overbought Sell Signal"""
     if len(df) < 14: return False
     stoch_df = ta.stoch(df["High"], df["Low"], df["Close"], k=14, d=3, smooth_k=3)
-    if stoch_df is None or len(stoch_df) < 3: return False
+    if stoch_df is None or len(stoch_df) < 5: return False
     
     k_col = [c for c in stoch_df.columns if c.startswith("STOCHk")][0]
     d_col = [c for c in stoch_df.columns if c.startswith("STOCHd")][0]
@@ -277,10 +281,14 @@ def is_stochastic_sell(df: pd.DataFrame, strict_crossover: bool = True) -> bool:
     k = stoch_df[k_col]
     d = stoch_df[d_col]
     
-    overbought = k.iloc[-3] > 70
+    # Needs to have been overbought recently (any of the last 5 days)
+    overbought = any(k.iloc[-i] > 70 for i in range(1, 6))
+    
     if strict_crossover:
+        # Crossed EXACTLY on the current candle
         trigger = (k.iloc[-1] < d.iloc[-1]) and (k.iloc[-2] >= d.iloc[-2])
     else:
+        # Is currently negative
         trigger = k.iloc[-1] < d.iloc[-1]
         
     return overbought and trigger
