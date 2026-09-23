@@ -1,10 +1,5 @@
 marketdate,screener_name,stock
-<<<<<<< HEAD
-20260922,Bullish_catalyst,ARM
-20260922,Bullish_catalyst,FIVN
-20260922,Bullish_catalyst,GRPN
-20260922,Bullish_catalyst,IVVD
-=======
+>>>>>>> c947b1ecdcb184a35cf8df4cc234d812ba612a2e,,
 >>>>>>> 2a923c4f3756ae2e3ca7720a0602b49159db5b05,,
 >>>>>>> 2a923c4f3756ae2e3ca7720a0602b49159db5b05,,
 >>>>>>> 2a923c4f3756ae2e3ca7720a0602b49159db5b05,,
@@ -21,6 +16,7 @@ marketdate,screener_name,stock
 =======,,
 =======,,
 =======,,
+=======,,
 <<<<<<< HEAD,,
 <<<<<<< HEAD,,
 <<<<<<< HEAD,,
@@ -29,6 +25,14 @@ marketdate,screener_name,stock
 <<<<<<< HEAD,,
 <<<<<<< HEAD,,
 <<<<<<< HEAD,,
+<<<<<<< HEAD,,
+20260923,Bullish_ready,WTI
+20260923,Bullish_catalyst,ACMR
+20260923,Bullish_catalyst,EGHT
+20260923,Bullish_catalyst,FSLY
+20260923,Bullish_catalyst,VICR
+20260923,Bearish_hook,VRRM
+20260923,Bearish_daily,EVGO
 20260922,Bullish_ready,DAVE
 20260922,Bullish_ready,MGTX
 20260922,Bullish_daily,EAT
@@ -68,9 +72,13 @@ marketdate,screener_name,stock
 20260922,Bullish_hourly,WT
 20260922,Bullish_hourly,XNCR
 20260922,Bullish_hourly,ZETA
+20260922,Bullish_catalyst,ARM
 20260922,Bullish_catalyst,BFLY
 20260922,Bullish_catalyst,DNA
 20260922,Bullish_catalyst,EAF
+20260922,Bullish_catalyst,FIVN
+20260922,Bullish_catalyst,GRPN
+20260922,Bullish_catalyst,IVVD
 20260922,Bullish_catalyst,RSKD
 20260922,Bullish_catalyst,VICR
 20260922,Bearish_hourly,APP
@@ -805,4 +813,3 @@ marketdate,screener_name,stock
 20260904,BU_TSH,WWW
 20260904,BU_TSH,XNCR
 20260904,BU_TSH,YEXT
->>>>>>> c947b1ecdcb184a35cf8df4cc234d812ba612a2e
