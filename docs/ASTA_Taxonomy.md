@@ -145,3 +145,28 @@ A stock triggers a Stochastic Sell Signal if it meets **both** of these conditio
 *   **Bullish Momentum:** The Current Candle's RSI is strictly greater than 60 `(Current RSI > 60)`. (Often the strict requirement on the Daily chart).
 *   **Bearish Momentum:** The Current Candle's RSI is strictly less than 40 `(Current RSI < 40)`.
 *   **Swing (Transition Zone):** The Current Candle's RSI is floating in the middle transition zone `(Current RSI >= 40 AND Current RSI <= 60)`.
+
+---
+
+### 16. MACD Bullish Hook (Failed Negative Crossover)
+**Concept:** The MACD Line was declining toward the Signal Line, threatening a Negative Crossover (NCO). The two lines converged very tightly — the bearish crossover was imminent — but the MACD Line refused to cross below the Signal. Instead, it "hooked" back upwards and began rising again. This is a powerful **bullish continuation** signal: the sellers tried to flip the trend but failed, and buyers stepped back in with force.
+
+**Mathematical Translation (5-candle lookback window):**
+A stock triggers a MACD Bullish Hook if it meets **all four** of these conditions:
+1. **Still in PCO:** The Current Candle's MACD Line is strictly above the Signal Line `(Current MACD > Current Signal)`. The Negative Crossover never completed.
+2. **The Hook (Rising NOW):** The Current Candle's MACD Line is strictly greater than the Previous Candle's MACD Line `(Current MACD > Previous MACD)`. The line has turned back up.
+3. **Was Declining:** Within the lookback window (default 5 candles), the MACD Line was declining on at least one candle `(MACD[i] < MACD[i-1])`. It was heading toward the Signal.
+4. **Gap Got Tight:** The minimum gap `(MACD - Signal)` within the lookback window narrowed to less than **50%** of the gap at the start of the window, but remained strictly **positive** (never crossed below zero).
+
+---
+
+### 17. MACD Bearish Hook (Failed Positive Crossover)
+**Concept:** The mirror of the Bullish Hook. The MACD Line was rising toward the Signal Line, threatening a Positive Crossover (PCO). The two lines converged very tightly — the bullish crossover was imminent — but the MACD Line refused to cross above the Signal. Instead, it "hooked" back downwards and began declining again. This is a powerful **bearish continuation** signal: the buyers tried to flip the trend but failed, and sellers maintained control.
+
+**Mathematical Translation (5-candle lookback window):**
+A stock triggers a MACD Bearish Hook if it meets **all four** of these conditions:
+1. **Still in NCO:** The Current Candle's MACD Line is strictly below the Signal Line `(Current MACD < Current Signal)`. The Positive Crossover never completed.
+2. **The Hook (Declining NOW):** The Current Candle's MACD Line is strictly less than the Previous Candle's MACD Line `(Current MACD < Previous MACD)`. The line has turned back down.
+3. **Was Rising:** Within the lookback window (default 5 candles), the MACD Line was rising on at least one candle `(MACD[i] > MACD[i-1])`. It was heading toward the Signal.
+4. **Gap Got Tight:** The minimum gap `(Signal - MACD)` within the lookback window narrowed to less than **50%** of the gap at the start of the window, but remained strictly **positive** (never crossed above zero).
+

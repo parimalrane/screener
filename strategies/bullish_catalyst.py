@@ -14,6 +14,9 @@ def check(df_daily: pd.DataFrame, df_weekly: pd.DataFrame, df_monthly: pd.DataFr
     - Weekly: Downside BB not challenged, RSI > 40
     """
     try:
+        # Prevent NaN data from bypassing math checks
+        df_daily = df_daily.dropna(subset=['Close', 'Volume'])
+        
         # Require enough daily/weekly data, but allow new IPOs to bypass monthly
         if len(df_daily) < 50 or len(df_weekly) < 20:
             return False
@@ -39,17 +42,17 @@ def check(df_daily: pd.DataFrame, df_weekly: pd.DataFrame, df_monthly: pd.DataFr
         avg_volume_20 = df_daily['Volume'].rolling(window=20).mean().iloc[-2] # up to yesterday
         
         # 1. Price > $1
-        if current_close <= 1.0:
+        if pd.isna(current_close) or current_close <= 1.0:
             return False
             
         # 2. Change Up 10%
         pct_change = (current_close - prev_close) / prev_close
-        if pct_change < 0.10:
+        if pd.isna(pct_change) or pct_change < 0.10:
             return False
             
 
         # 4. Current Volume > 1M
-        if current_volume < 1_000_000:
+        if pd.isna(current_volume) or current_volume < 1_000_000:
             return False
             
         # 4. Relative Volume > 2

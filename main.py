@@ -206,7 +206,9 @@ def run_scan():
         "Bullish_TS_Daily": "Bullish_daily", "Bullish_TS_Hourly": "Bullish_hourly",
         "Bearish_TS_Daily": "Bearish_daily", "Bearish_TS_Hourly": "Bearish_hourly",
         "Bullish_FUT": "Bullish_ready", "Bearish_FUT": "Bearish_ready",
-        "Bullish_Catalyst": "Bullish_catalyst"
+        "Bullish_4os": "Bullish_4os", "Bearish_4os": "Bearish_4os",
+        "Bullish_Catalyst": "Bullish_catalyst",
+        "Bullish_Hook": "Bullish_hook", "Bearish_Hook": "Bearish_hook"
     }
     short_screens = [names_map.get(name, name) for name in active_screens]
     # Print removed per user request
@@ -255,7 +257,11 @@ def run_scan():
             "Bearish_TS_Hourly": "Bearish_hourly",
             "Bullish_FUT": "Bullish_ready",
             "Bearish_FUT": "Bearish_ready",
-            "Bullish_Catalyst": "Bullish_catalyst"
+            "Bullish_4os": "Bullish_4os",
+            "Bearish_4os": "Bearish_4os",
+            "Bullish_Catalyst": "Bullish_catalyst",
+            "Bullish_Hook": "Bullish_hook",
+            "Bearish_Hook": "Bearish_hook"
         }
         df_new["screener_name"] = df_new["screener_name"].replace(names_map)
 
@@ -263,9 +269,11 @@ def run_scan():
             if pd.isna(val): return 99
             s = str(val).upper()
             if "READY" in s: return 0  
-            if "DAILY" in s: return 1
-            if "HOURLY" in s: return 2
-            if "CATALYST" in s: return 3
+            if "HOOK" in s: return 1
+            if "DAILY" in s: return 2
+            if "HOURLY" in s: return 3
+            if "4OS" in s: return 4
+            if "CATALYST" in s: return 5
             return 99
             
         df_new["is_bull"] = df_new["screener_name"].str.startswith("Bullish")

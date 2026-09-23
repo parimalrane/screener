@@ -426,6 +426,108 @@ def is_macd_down(df: pd.DataFrame) -> bool:
     """Generic State: MACD is NCO OR MACD is Declining"""
     return is_macd_nco(df) or is_macd_declining(df)
 
+def is_macd_bullish_hook(df: pd.DataFrame, lookback: int = 5) -> bool:
+    """MACD Bullish Hook: MACD was declining toward Signal, almost crossed
+    below (failed NCO), then hooked back up. A powerful bullish continuation signal.
+    
+    Conditions:
+    1. MACD Line is currently ABOVE Signal Line (still in PCO — the cross never happened)
+    2. MACD Line is NOW rising (current > previous candle)
+    3. MACD Line was declining within the lookback window (it was heading toward signal)
+    4. The gap between MACD and Signal got very tight within the lookback window
+    """
+    if len(df) < 30: return False
+    macd_df = ta.macd(df["Close"], fast=12, slow=26, signal=9)
+    if macd_df is None or len(macd_df) < (lookback + 2): return False
+    
+    macd_col = [c for c in macd_df.columns if c.startswith("MACD_")][0]
+    signal_col = [c for c in macd_df.columns if c.startswith("MACDs_")][0]
+    
+    macd_line = macd_df[macd_col]
+    signal_line = macd_df[signal_col]
+    
+    # 1. Currently in PCO (MACD > Signal — the NCO never completed)
+    if macd_line.iloc[-1] <= signal_line.iloc[-1]:
+        return False
+    
+    # 2. MACD Line is rising NOW (the hook back up)
+    if macd_line.iloc[-1] <= macd_line.iloc[-2]:
+        return False
+    
+    # 3. MACD was declining within the lookback window (it was heading toward signal)
+    was_declining = False
+    for i in range(-lookback, -1):
+        if macd_line.iloc[i] < macd_line.iloc[i - 1]:
+            was_declining = True
+            break
+    if not was_declining:
+        return False
+    
+    # 4. The gap got very tight — find minimum (MACD - Signal) in the lookback window
+    #    "Tight" means the gap narrowed to less than 30% of the gap at the start of the window
+    gaps = [(macd_line.iloc[i] - signal_line.iloc[i]) for i in range(-lookback, 0)]
+    min_gap = min(gaps)
+    start_gap = abs(macd_line.iloc[-(lookback + 1)] - signal_line.iloc[-(lookback + 1)])
+    
+    # The minimum gap must be positive (never crossed) and small relative to the entry gap
+    if min_gap <= 0:
+        return False
+    if start_gap > 0 and min_gap > (start_gap * 0.50):
+        return False
+    
+    return True
+
+def is_macd_bearish_hook(df: pd.DataFrame, lookback: int = 5) -> bool:
+    """MACD Bearish Hook: MACD was rising toward Signal, almost crossed
+    above (failed PCO), then hooked back down. A powerful bearish continuation signal.
+    
+    Conditions:
+    1. MACD Line is currently BELOW Signal Line (still in NCO — the cross never happened)
+    2. MACD Line is NOW declining (current < previous candle)
+    3. MACD Line was rising within the lookback window (it was heading toward signal)
+    4. The gap between Signal and MACD got very tight within the lookback window
+    """
+    if len(df) < 30: return False
+    macd_df = ta.macd(df["Close"], fast=12, slow=26, signal=9)
+    if macd_df is None or len(macd_df) < (lookback + 2): return False
+    
+    macd_col = [c for c in macd_df.columns if c.startswith("MACD_")][0]
+    signal_col = [c for c in macd_df.columns if c.startswith("MACDs_")][0]
+    
+    macd_line = macd_df[macd_col]
+    signal_line = macd_df[signal_col]
+    
+    # 1. Currently in NCO (MACD < Signal — the PCO never completed)
+    if macd_line.iloc[-1] >= signal_line.iloc[-1]:
+        return False
+    
+    # 2. MACD Line is declining NOW (the hook back down)
+    if macd_line.iloc[-1] >= macd_line.iloc[-2]:
+        return False
+    
+    # 3. MACD was rising within the lookback window (it was heading toward signal)
+    was_rising = False
+    for i in range(-lookback, -1):
+        if macd_line.iloc[i] > macd_line.iloc[i - 1]:
+            was_rising = True
+            break
+    if not was_rising:
+        return False
+    
+    # 4. The gap got very tight — find minimum (Signal - MACD) in the lookback window
+    #    "Tight" means the gap narrowed to less than 30% of the gap at the start of the window
+    gaps = [(signal_line.iloc[i] - macd_line.iloc[i]) for i in range(-lookback, 0)]
+    min_gap = min(gaps)
+    start_gap = abs(signal_line.iloc[-(lookback + 1)] - macd_line.iloc[-(lookback + 1)])
+    
+    # The minimum gap must be positive (never crossed) and small relative to the entry gap
+    if min_gap <= 0:
+        return False
+    if start_gap > 0 and min_gap > (start_gap * 0.50):
+        return False
+    
+    return True
+
 def is_bkp(df: pd.DataFrame) -> bool:
     """Helper: Babaji Ka Prasad (Lower BB Floor/Rounding Bottom)"""
     if len(df) < 20: return False
