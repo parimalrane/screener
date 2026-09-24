@@ -1,6 +1,6 @@
 import pandas as pd
 from registry import register_screener
-from asta_conditions import is_bbdnc, is_rsi_above, is_macd_up
+from asta_conditions import is_bbdnc, is_rsi_above, is_macd_up, is_solid_candle
 
 @register_screener("Bullish_Catalyst")
 def check(df_daily: pd.DataFrame, df_weekly: pd.DataFrame, df_monthly: pd.DataFrame):
@@ -9,7 +9,7 @@ def check(df_daily: pd.DataFrame, df_weekly: pd.DataFrame, df_monthly: pd.DataFr
     - Price > $1
     - Change > 10% from previous close
     - Current Volume > 1M
-    - Relative Volume > 2
+    - Relative Volume > 3
     - Monthly: Downside BB not challenged, MACD is UP
     - Weekly: Downside BB not challenged, RSI > 40
     """
@@ -55,16 +55,17 @@ def check(df_daily: pd.DataFrame, df_weekly: pd.DataFrame, df_monthly: pd.DataFr
         if pd.isna(current_volume) or current_volume < 1_000_000:
             return False
             
-        # 4. Relative Volume > 2
+        # 4. Relative Volume > 3
         # Use average volume from previous 20 days (to not skew with today's massive volume)
         if pd.isna(avg_volume_20) or avg_volume_20 <= 0:
             return False
             
-        if current_volume < (avg_volume_20 * 2):
+        if current_volume < (avg_volume_20 * 3):
             return False
 
-        # Finviz also specified "Average Volume Under 1M" or similar, but
-        # RVOL > 2 and current volume > 1M guarantees the volume spike logic.
+        # 5. Solid Bullish Candle Structure (No massive upper wicks, close > open)
+        if not is_solid_candle(df_daily, direction='bullish'):
+            return False
         
         return True
 

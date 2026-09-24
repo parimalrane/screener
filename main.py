@@ -44,10 +44,19 @@ for _, module_name, _ in pkgutil.iter_modules(strategies.__path__):
 # ---------------------------------------------------------
 def get_all_tickers() -> dict:
     try:
-        import glob
-        files = glob.glob("data/*_stocks.csv")
-        files.sort()
-        target_file = files[-1] if files else "data/stocks_universe.csv"
+        import glob, re
+        all_files = glob.glob("data/*_stocks.csv")
+        valid_files = []
+        for f in all_files:
+            match = re.search(r'(\d{8})_stocks\.csv', f)
+            if match:
+                valid_files.append((int(match.group(1)), f))
+        
+        if valid_files:
+            valid_files.sort(key=lambda x: x[0])
+            target_file = valid_files[-1][1]
+        else:
+            target_file = "data/stocks_universe.csv"
         
         df = pd.read_csv(target_file)
         

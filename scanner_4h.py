@@ -24,7 +24,25 @@ RESULTS_FILE = "output/screener_4h_results.csv"
 def get_tickers_by_rank():
     # Returns (bullish_tickers_list, bearish_tickers_list)
     try:
-        df = pd.read_csv(UNIVERSE_FILE)
+        import glob, re
+        
+        # Explicitly search for YYYYMMDD_stocks.csv format
+        all_files = glob.glob("data/*_stocks.csv")
+        valid_files = []
+        for f in all_files:
+            match = re.search(r'(\d{8})_stocks\.csv', f)
+            if match:
+                date_int = int(match.group(1))
+                valid_files.append((date_int, f))
+                
+        if valid_files:
+            # Sort by the YYYYMMDD integer date (numerically largest = most recent)
+            valid_files.sort(key=lambda x: x[0])
+            target_file = valid_files[-1][1]
+        else:
+            target_file = "data/stocks_universe.csv"
+            
+        df = pd.read_csv(target_file)
         ticker_col = "Ticker" if "Ticker" in df.columns else df.columns[0]
         zacks_col = "Zacks Rank" if "Zacks Rank" in df.columns else None
         

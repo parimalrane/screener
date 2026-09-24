@@ -257,8 +257,8 @@ def is_stochastic_buy(df: pd.DataFrame, strict_crossover: bool = True) -> bool:
     k = stoch_df[k_col]
     d = stoch_df[d_col]
     
-    # Needs to have been oversold recently (any of the last 5 days)
-    oversold = any(k.iloc[-i] < 30 for i in range(1, 6))
+    # Needs to match exactly "2 days ago Slow Stochastic K < 30"
+    oversold = k.iloc[-3] < 30
     
     if strict_crossover:
         # Crossed EXACTLY on the current candle
@@ -281,8 +281,8 @@ def is_stochastic_sell(df: pd.DataFrame, strict_crossover: bool = True) -> bool:
     k = stoch_df[k_col]
     d = stoch_df[d_col]
     
-    # Needs to have been overbought recently (any of the last 5 days)
-    overbought = any(k.iloc[-i] > 70 for i in range(1, 6))
+    # Needs to match exactly "2 days ago Slow Stochastic K > 70"
+    overbought = k.iloc[-3] > 70
     
     if strict_crossover:
         # Crossed EXACTLY on the current candle
