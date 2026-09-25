@@ -8,6 +8,12 @@ marketdate,screener_name,stock
 >>>>>>> 2a923c4f3756ae2e3ca7720a0602b49159db5b05,,
 >>>>>>> 2a923c4f3756ae2e3ca7720a0602b49159db5b05,,
 >>>>>>> 2a923c4f3756ae2e3ca7720a0602b49159db5b05,,
+>>>>>>> 1ab93031604b36b6aa379206427ad922fee1ae31,,
+>>>>>>> 1ab93031604b36b6aa379206427ad922fee1ae31,,
+>>>>>>> 1ab93031604b36b6aa379206427ad922fee1ae31,,
+=======,,
+=======,,
+=======,,
 =======,,
 =======,,
 =======,,
@@ -26,17 +32,23 @@ marketdate,screener_name,stock
 <<<<<<< HEAD,,
 <<<<<<< HEAD,,
 <<<<<<< HEAD,,
-20260924,Bullish_daily_2,WLY
+<<<<<<< HEAD,,
+<<<<<<< HEAD,,
+<<<<<<< HEAD,,
 20260924,Bullish_daily,WLY
+20260924,Bullish_daily_2,WLY
 20260924,Bullish_catalyst,DNA
 20260924,Bullish_catalyst,MNTK
 20260924,Bullish_catalyst,QMCO
 20260924,Bullish_catalyst,RSKD
 20260924,Bullish_catalyst,WRBY
+20260923,Bullish_ready,WTI
 20260923,Bullish_catalyst,ACMR
 20260923,Bullish_catalyst,EGHT
 20260923,Bullish_catalyst,FSLY
 20260923,Bullish_catalyst,VICR
+20260923,Bearish_hook,VRRM
+20260923,Bearish_daily,EVGO
 20260922,Bullish_ready,DAVE
 20260922,Bullish_ready,MGTX
 20260922,Bullish_daily,EAT
