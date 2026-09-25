@@ -9,6 +9,8 @@ STRATEGIES = {
     # Core Trend Screeners
     "Bullish_TS_Daily": True,
     "Bearish_TS_Daily": True,
+    "Bullish_Daily_2": True,
+    "Bearish_Daily_2": True,
     "Bullish_TS_Hourly": False,
     "Bearish_TS_Hourly": False,
     "Bullish_FUT": True,

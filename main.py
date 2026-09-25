@@ -214,6 +214,7 @@ def run_scan():
     names_map = {
         "Bullish_TS_Daily": "Bullish_daily", "Bullish_TS_Hourly": "Bullish_hourly",
         "Bearish_TS_Daily": "Bearish_daily", "Bearish_TS_Hourly": "Bearish_hourly",
+        "Bullish_Daily_2": "Bullish_daily_2", "Bearish_Daily_2": "Bearish_daily_2",
         "Bullish_FUT": "Bullish_ready", "Bearish_FUT": "Bearish_ready",
         "Bullish_4os": "Bullish_4os", "Bearish_4os": "Bearish_4os",
         "Bullish_Catalyst": "Bullish_catalyst",
@@ -272,6 +273,8 @@ def run_scan():
         names_map = {
             "Bullish_TS_Daily": "Bullish_daily",
             "Bullish_TS_Hourly": "Bullish_hourly",
+            "Bullish_Daily_2": "Bullish_daily_2",
+            "Bearish_Daily_2": "Bearish_daily_2",
             "Bearish_TS_Daily": "Bearish_daily",
             "Bearish_TS_Hourly": "Bearish_hourly",
             "Bullish_FUT": "Bullish_ready",
@@ -289,17 +292,19 @@ def run_scan():
             s = str(val).upper()
             if "READY" in s: return 0  
             if "HOOK" in s: return 1
+            # Exact ranking enforced below
+            if "DAILY_2" in s: return 3
             if "DAILY" in s: return 2
-            if "HOURLY" in s: return 3
-            if "4OS" in s: return 4
-            if "CATALYST" in s: return 5
+            if "HOURLY" in s: return 4
+            if "4OS" in s: return 5
+            if "CATALYST" in s: return 6
             return 99
             
         df_new["is_bull"] = df_new["screener_name"].str.startswith("Bullish")
         df_new["strategy_rank"] = df_new["screener_name"].apply(get_strategy_rank)
         
-        # Sort hierarchy: Bullish first -> Strategy -> Ticker
-        df_new = df_new.sort_values(by=["is_bull", "strategy_rank", "stock"], ascending=[False, True, True])
+        # Sort hierarchy: Bullish first -> Strategy -> Screener Name -> Ticker
+        df_new = df_new.sort_values(by=["is_bull", "strategy_rank", "screener_name", "stock"], ascending=[False, True, True, True])
         df_new = df_new.drop(columns=["is_bull", "strategy_rank"])
         
         # Suppressed detailed pandas table print per user request
