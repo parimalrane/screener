@@ -5,8 +5,12 @@ echo  INITIALIZING: Institutional Options Flow Engine
 echo ========================================================
 echo.
 
-REM Get today's date safely in MM-DD-YYYY format using PowerShell
-for /f "usebackq tokens=*" %%i in (`powershell -NoProfile -Command "Get-Date -Format 'MM-dd-yyyy'"`) do set TARGET_DATE=%%i
+REM If the user passes a date argument (e.g. option.bat 09-25-2026), use it. Otherwise guess today.
+if "%~1"=="" (
+    for /f "usebackq tokens=*" %%i in (`powershell -NoProfile -Command "Get-Date -Format 'MM-dd-yyyy'"`) do set TARGET_DATE=%%i
+) else (
+    set "TARGET_DATE=%~1"
+)
 
 echo [*] Looking for Barchart CSV files for: %TARGET_DATE%
 
