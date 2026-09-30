@@ -1,5 +1,6 @@
 import pandas as pd
 import pandas_ta as ta
+from config import MACD_HOOK_COMPRESSION
 
 def _get_indicators(df: pd.DataFrame, length: int = 20, std: float = 2.0):
     """Helper method to extract the Bollinger Bands and 20 SMA."""
@@ -434,19 +435,13 @@ def is_macd_down(df: pd.DataFrame) -> bool:
     """Generic State: MACD is NCO OR MACD is Declining"""
     return is_macd_nco(df) or is_macd_declining(df)
 
-def is_macd_bullish_hook(df: pd.DataFrame, lookback: int = 5) -> bool:
+def is_macd_bullish_hook(df: pd.DataFrame) -> bool:
     """MACD Bullish Hook: MACD was declining toward Signal, almost crossed
     below (failed NCO), then hooked back up. A powerful bullish continuation signal.
-    
-    Conditions:
-    1. MACD Line is currently ABOVE Signal Line (still in PCO — the cross never happened)
-    2. MACD Line is NOW rising (current > previous candle)
-    3. MACD Line was declining within the lookback window (it was heading toward signal)
-    4. The gap between MACD and Signal got very tight within the lookback window
     """
     if len(df) < 30: return False
     macd_df = ta.macd(df["Close"], fast=12, slow=26, signal=9)
-    if macd_df is None or len(macd_df) < (lookback + 2): return False
+    if macd_df is None or len(macd_df) < 5: return False
     
     macd_col = [c for c in macd_df.columns if c.startswith("MACD_")][0]
     signal_col = [c for c in macd_df.columns if c.startswith("MACDs_")][0]
@@ -454,50 +449,38 @@ def is_macd_bullish_hook(df: pd.DataFrame, lookback: int = 5) -> bool:
     macd_line = macd_df[macd_col]
     signal_line = macd_df[signal_col]
     
-    # 1. Currently in PCO (MACD > Signal — the NCO never completed)
+    # 1. Currently in PCO (MACD > Signal — the cross down never happened)
     if macd_line.iloc[-1] <= signal_line.iloc[-1]:
         return False
     
-    # 2. MACD Line is rising NOW (the hook back up)
-    if macd_line.iloc[-1] <= macd_line.iloc[-2]:
-        return False
+    # 2 & 3. The Pivot (Flat or Up AFTER Down):
+    # Yesterday MUST have been actively dropping (Down). 
+    # Today MUST be resting or bouncing (Flat or Up).
+    if not (macd_line.iloc[-2] < macd_line.iloc[-3]):
+        return False # Yesterday was not dropping
+        
+    if macd_line.iloc[-1] < macd_line.iloc[-2]:
+        return False # Today is still dropping
+        
+    # 4. The "Kiss" Proximity: The gap must have squeezed incredibly close to zero (e.g. your 0.11 target)
+    # We dynamically calculate this by demanding the apex gap shrank to <25% of the recent histogram peak.
+    gap = macd_line - signal_line
+    apex_gap = gap.iloc[-2]
     
-    # 3. MACD was declining within the lookback window (it was heading toward signal)
-    was_declining = False
-    for i in range(-lookback, -1):
-        if macd_line.iloc[i] < macd_line.iloc[i - 1]:
-            was_declining = True
-            break
-    if not was_declining:
+    # Highest gap in the last 20 days (the mountain)
+    peak_gap = gap.iloc[-20:-2].max()
+    if peak_gap > 0 and apex_gap > (peak_gap * MACD_HOOK_COMPRESSION):
         return False
-    
-    # 4. The gap got very tight — find minimum (MACD - Signal) in the lookback window
-    #    "Tight" means the gap narrowed to less than 30% of the gap at the start of the window
-    gaps = [(macd_line.iloc[i] - signal_line.iloc[i]) for i in range(-lookback, 0)]
-    min_gap = min(gaps)
-    start_gap = abs(macd_line.iloc[-(lookback + 1)] - signal_line.iloc[-(lookback + 1)])
-    
-    # The minimum gap must be positive (never crossed) and small relative to the entry gap
-    if min_gap <= 0:
-        return False
-    if start_gap > 0 and min_gap > (start_gap * 0.50):
-        return False
-    
+        
     return True
 
-def is_macd_bearish_hook(df: pd.DataFrame, lookback: int = 5) -> bool:
+def is_macd_bearish_hook(df: pd.DataFrame) -> bool:
     """MACD Bearish Hook: MACD was rising toward Signal, almost crossed
     above (failed PCO), then hooked back down. A powerful bearish continuation signal.
-    
-    Conditions:
-    1. MACD Line is currently BELOW Signal Line (still in NCO — the cross never happened)
-    2. MACD Line is NOW declining (current < previous candle)
-    3. MACD Line was rising within the lookback window (it was heading toward signal)
-    4. The gap between Signal and MACD got very tight within the lookback window
     """
     if len(df) < 30: return False
     macd_df = ta.macd(df["Close"], fast=12, slow=26, signal=9)
-    if macd_df is None or len(macd_df) < (lookback + 2): return False
+    if macd_df is None or len(macd_df) < 5: return False
     
     macd_col = [c for c in macd_df.columns if c.startswith("MACD_")][0]
     signal_col = [c for c in macd_df.columns if c.startswith("MACDs_")][0]
@@ -505,35 +488,27 @@ def is_macd_bearish_hook(df: pd.DataFrame, lookback: int = 5) -> bool:
     macd_line = macd_df[macd_col]
     signal_line = macd_df[signal_col]
     
-    # 1. Currently in NCO (MACD < Signal — the PCO never completed)
+    # 1. Currently in NCO (MACD < Signal — the cross up never happened)
     if macd_line.iloc[-1] >= signal_line.iloc[-1]:
         return False
     
-    # 2. MACD Line is declining NOW (the hook back down)
-    if macd_line.iloc[-1] >= macd_line.iloc[-2]:
-        return False
+    # 2 & 3. The Pivot (Flat or Down AFTER Up):
+    # Yesterday MUST have been actively rising (Up).
+    # Today MUST be resting or rejecting (Flat or Down).
+    if not (macd_line.iloc[-2] > macd_line.iloc[-3]):
+        return False # Yesterday was not rising
+        
+    if macd_line.iloc[-1] > macd_line.iloc[-2]:
+        return False # Today is still rising
+        
+    # 4. The "Kiss" Proximity: The gap must have squeezed incredibly close to zero
+    gap = signal_line - macd_line
+    apex_gap = gap.iloc[-2]
     
-    # 3. MACD was rising within the lookback window (it was heading toward signal)
-    was_rising = False
-    for i in range(-lookback, -1):
-        if macd_line.iloc[i] > macd_line.iloc[i - 1]:
-            was_rising = True
-            break
-    if not was_rising:
+    peak_gap = gap.iloc[-20:-2].max()
+    if peak_gap > 0 and apex_gap > (peak_gap * MACD_HOOK_COMPRESSION):
         return False
-    
-    # 4. The gap got very tight — find minimum (Signal - MACD) in the lookback window
-    #    "Tight" means the gap narrowed to less than 30% of the gap at the start of the window
-    gaps = [(signal_line.iloc[i] - macd_line.iloc[i]) for i in range(-lookback, 0)]
-    min_gap = min(gaps)
-    start_gap = abs(signal_line.iloc[-(lookback + 1)] - macd_line.iloc[-(lookback + 1)])
-    
-    # The minimum gap must be positive (never crossed) and small relative to the entry gap
-    if min_gap <= 0:
-        return False
-    if start_gap > 0 and min_gap > (start_gap * 0.50):
-        return False
-    
+        
     return True
 
 def is_bkp(df: pd.DataFrame) -> bool:

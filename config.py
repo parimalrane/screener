@@ -1,6 +1,10 @@
 # Minimum Average Daily Range (Volatility). Any stock below this is ignored globally across all strategies.
 MIN_ADR_PERCENT = 4.0
 
+# Determines how tight the MACD "Kiss" must be for Hook setups. 
+# 0.25 means the gap must shrink to at least 25% of its recent peak.
+MACD_HOOK_COMPRESSION = 0.25
+
 # -----------------------------------------------------
 # MASTER STRATEGY TOGGLES
 # -----------------------------------------------------

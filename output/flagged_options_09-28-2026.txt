@@ -1,0 +1,72 @@
+=== 2026-09-28 SCAN ===
+Watchlist: 288 | Signals: 1TMG / 39TMJ / 1J+G
+Bias: 3 bullish-only | 28 bearish-only | 4 mixed
+
+--- LEGEND FOR AI ---
+SIG Types      : TMG = Short Covering | TMJ = Short Build-Up | J+G = Combo
+CONF           : TRUE if underlying stock confirmed the directional flow
+PRICE Δ        : Intraday price change of the options premium
+(+X, ΣY)       : Breadth: +X identical block trades found | Macro Net: Aggregated total OI volume of Y across all strikes
+Context Flags  : [IVR+] = High IV Rank (Sell premium) | [OVRP] = IV > RV (Expensive) | [ER] = Imminent Earnings
+                 [IVR-] = Low IV Rank (Buy premium)   | [UNDP] = IV < RV (Underpriced) | [UVOL] = Unusually High Volume
+---------------------
+
+--- BULLISH DIRECTION ---
+STOCK   | SIG | TYPE  |      MONEY |   STRIKE | EXP        | DTE | CONF |   NOTIONAL |     OI CHG |  PRICE Δ
+NVDA    | J+G | Combo |        MIX |    Multi | Multi      |  18 | TRUE |   $298,732 |            |         
+NVDA    | TMG | Call  |   OTM 9.2% |   250.00 | 2026-10-16 |  18 | TRUE |   $298,732 |     -3,905 |    +0.26
+NVDA    | TMJ | Put   |   OTM 5.0% |   217.50 | 2026-10-02 |   4 | TRUE |   $281,689 |      5,578 |    -0.58  (+2, Σ8,961)
+MO      | TMJ | Put   |   ATM 0.2% |    69.00 | 2026-10-02 |   4 | TRUE |    $79,849 |      1,342 |    -0.19
+PSKY    | TMJ | Put   |   OTM 2.7% |    10.00 | 2026-10-02 |   4 | TRUE |   $168,687 |     13,495 |    -0.21
+
+--- BEARISH DIRECTION ---
+STOCK   | SIG | TYPE  |      MONEY |   STRIKE | EXP        | DTE | CONF |   NOTIONAL |     OI CHG |  PRICE Δ
+AAPL    | TMJ | Call  |   OTM 1.2% |   342.50 | 2026-10-02 |   4 | TRUE | $1,222,480 |      6,608 |    -1.42  (+4, Σ18,339)
+AMZN    | TMJ | Call  |   OTM 1.6% |   250.00 | 2026-10-02 |   4 | TRUE | $1,187,914 |      6,527 |    -1.95  (+4, Σ18,315)
+BABA    | TMJ | Call  |   OTM 3.9% |   113.00 | 2026-10-02 |   4 | TRUE |   $174,019 |      3,080 |    -0.32  (+1, Σ4,669)
+BAC     | TMJ | Call  |   OTM 2.8% |    57.00 | 2026-10-02 |   4 | TRUE |   $144,985 |      8,787 |    -0.45
+CLSK    | TMJ | Call  |   OTM 4.9% |    14.00 | 2026-10-02 |   4 | TRUE |   $114,826 |      4,503 |    -0.31
+COIN    | TMJ | Call  |   OTM 3.0% |   197.50 | 2026-10-02 |   4 | TRUE |   $733,590 |      2,052 |    -1.90
+CRCL    | TMJ | Call  |   OTM 4.9% |    90.00 | 2026-10-02 |   4 | TRUE |   $159,891 |      1,126 |    -1.56
+CVS     | TMJ | Call  |   OTM 2.4% |    90.00 | 2026-10-02 |   4 | TRUE |   $205,656 |      3,608 |    -0.69
+DAL     | TMJ | Call  |   OTM 3.5% |    87.00 | 2026-10-02 |   4 | TRUE |   $374,914 |      6,047 |    -0.52  (+1, Σ12,326)
+GM      | TMJ | Call  |   OTM 2.9% |    83.00 | 2026-10-02 |   4 | TRUE |    $45,018 |      1,098 |    -0.86
+GOOGL   | TMJ | Call  |   OTM 1.4% |   347.50 | 2026-10-02 |   4 | TRUE |   $615,060 |      2,040 |    -1.08  (+2, Σ8,371)
+HIMS    | TMJ | Call  |   OTM 2.5% |    29.50 | 2026-10-02 |   4 | TRUE |   $397,903 |      6,523 |    -0.41
+HOOD    | TMJ | Call  |   OTM 3.0% |   120.00 | 2026-10-02 |   4 | TRUE | $1,379,278 |      6,103 |    -1.49  (+2, Σ13,016)
+KO      | TMJ | Call  |   ATM 0.2% |    87.00 | 2026-10-02 |   4 | TRUE |   $138,644 |      1,507 |    -0.42  (+1, Σ7,944)
+MARA    | TMJ | Call  |   OTM 3.2% |    12.50 | 2026-10-02 |   4 | TRUE | $1,477,584 |     47,664 |    -0.25
+MRNA    | TMJ | Call  |   ATM 0.1% |   197.50 | 2026-10-02 |   4 | TRUE | $1,819,300 |      2,599 |    -2.20  (+1, Σ3,703)
+MSFT    | TMJ | Call  |   OTM 4.1% |   530.00 | 2026-10-09 |  11 | TRUE | $2,887,680 |     10,240 |    -2.43  (+4, Σ16,631)
+MSTR    | TMJ | Call  |   OTM 3.4% |   162.50 | 2026-10-02 |   4 | TRUE | $8,671,912 |     29,297 |    -1.19  (+3, Σ62,542)
+NFLX    | TMJ | Call  |   OTM 2.6% |    71.00 | 2026-10-02 |   4 | TRUE |    $62,926 |      1,724 |    -0.81
+NOK     | TMJ | Call  |   OTM 3.8% |    10.50 | 2026-10-02 |   4 | TRUE |    $27,153 |      2,586 |    -0.14
+ONDS    | TMJ | Call  |   OTM 4.2% |     8.00 | 2026-10-02 |   4 | FALS |    $18,549 |      1,613 |    -0.03
+OXY     | TMJ | Call  |   OTM 3.4% |    58.00 | 2026-10-02 |   4 | TRUE |   $213,647 |      9,289 |    -0.31
+RIVN    | TMJ | Call  |   OTM 4.8% |    15.50 | 2026-10-02 |   4 | TRUE |    $23,040 |      1,536 |    -0.27
+SMCI    | TMJ | Call  |   OTM 4.1% |    43.50 | 2026-10-02 |   4 | TRUE | $1,668,580 |     21,955 |    -0.83  (+1, Σ23,119)
+SOFI    | TMJ | Call  |   OTM 3.6% |    16.50 | 2026-10-02 |   4 | TRUE |    $15,457 |      1,145 |    -0.28
+SPCX    | TMJ | Call  |   OTM 3.1% |   150.00 | 2026-10-02 |   4 | TRUE |   $844,667 |      5,688 |    -1.62  (+2, Σ10,971)
+TSLA    | TMJ | Call  |   OTM 4.9% |   375.00 | 2026-10-02 |   4 | TRUE |   $282,425 |      1,738 |    -5.83  (+3, Σ7,395)
+WULF    | TMJ | Call  |   OTM 2.5% |    15.50 | 2026-10-02 |   4 | TRUE |    $83,391 |      2,166 |    -0.38
+
+--- SIDEWAYS ---
+STOCK   | DIR     | SIG | TYPE  |      MONEY |   STRIKE | EXP        | DTE | CONF |   NOTIONAL |     OI CHG |  PRICE Δ
+PYPL    | bearish | TMJ | Call  |   OTM 3.2% |    56.00 | 2026-10-02 |   4 | TRUE |   $123,590 |      2,908 |    -0.73
+PYPL    | BULLISH | TMJ | Put   |   OTM 2.4% |    53.00 | 2026-10-16 |  18 | FALS |   $748,482 |      7,028 |    -0.19  (+1, Σ9,511)
+        |         |     |       |          |            |     |       |      |            | net_signal: | +6,603
+TSM     | bearish | TMJ | Call  |   OTM 3.8% |   470.00 | 2026-10-02 |   4 | FALS |   $210,160 |      1,551 |    -0.05
+TSM     | BULLISH | TMJ | Put   |   OTM 2.8% |   440.00 | 2026-10-02 |   4 | TRUE |   $363,525 |      1,965 |    -0.74
+        |         |     |       |          |            |     |       |      |            | net_signal: | +414
+PLTR    | bearish | TMJ | Call  |   OTM 4.0% |   195.00 | 2026-10-02 |   4 | TRUE |   $256,302 |      1,964 |    -1.26
+PLTR    | BULLISH | TMJ | Put   |   OTM 4.0% |   180.00 | 2026-10-02 |   4 | FALS |   $129,152 |      1,009 |    -0.08
+        |         |     |       |          |            |     |       |      |            | net_signal: | -955
+GME     | bearish | TMJ | Call  |   OTM 4.3% |    25.00 | 2026-10-02 |   4 | FALS |   $244,045 |      8,563 |    -0.02
+GME     | BULLISH | TMJ | Put   |   OTM 4.0% |    23.00 | 2026-10-02 |   4 | TRUE |    $33,775 |      1,930 |    -0.29
+        |         |     |       |          |            |     |       |      |            | net_signal: | -6,633
+
+--- TRADINGVIEW WATCHLIST ---
+###BU_Options,NVDA,MO,PSKY,
+###BE_Options,AAPL,AMZN,BABA,BAC,CLSK,COIN,CRCL,CVS,DAL,GM,GOOGL,HIMS,HOOD,KO,MARA,MRNA,MSFT,MSTR,NFLX,NOK,ONDS,OXY,RIVN,SMCI,SOFI,SPCX,TSLA,WULF,
+###SIDEWAYS_Options,PYPL,TSM,PLTR,GME,
+
