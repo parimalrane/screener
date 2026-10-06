@@ -11,6 +11,10 @@ marketdate,screener_name,stock
 >>>>>>> 1ab93031604b36b6aa379206427ad922fee1ae31,,
 >>>>>>> 1ab93031604b36b6aa379206427ad922fee1ae31,,
 >>>>>>> 1ab93031604b36b6aa379206427ad922fee1ae31,,
+>>>>>>> 1684a97df09962f02024ea7dbca98e420dde7a67,,
+>>>>>>> 1684a97df09962f02024ea7dbca98e420dde7a67,,
+=======,,
+=======,,
 =======,,
 =======,,
 =======,,
@@ -35,16 +39,26 @@ marketdate,screener_name,stock
 <<<<<<< HEAD,,
 <<<<<<< HEAD,,
 <<<<<<< HEAD,,
+<<<<<<< HEAD,,
+<<<<<<< HEAD,,
+20261006,Bullish_daily_2,STLN
 20260929,Bullish_ready,KYMR
 20260929,Bullish_ready,URGN
+20260929,Bullish_hook,ACHC
+20260929,Bullish_hook,ALGT
+20260929,Bullish_hook,IBRX
 20260929,Bullish_hook,IBRX
 20260929,Bullish_catalyst,IOVA
+20260929,Bullish_catalyst,IOVA
 20260929,Bearish_ready,NABL
+20260929,Bearish_ready,NABL
+20260929,Bearish_hook,CDZI
 20260928,Bullish_ready,DAVE
 20260928,Bullish_ready,KYMR
 20260928,Bullish_ready,OSCR
 20260928,Bullish_ready,URGN
 20260928,Bearish_ready,EU
+20260928,Bearish_hook,CDZI
 20260925,Bullish_ready,DAVE
 20260925,Bullish_ready,OOMA
 20260925,Bullish_ready,OSCR

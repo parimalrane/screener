@@ -283,7 +283,9 @@ def run_scan():
             "Bearish_4os": "Bearish_4os",
             "Bullish_Catalyst": "Bullish_catalyst",
             "Bullish_Hook": "Bullish_hook",
-            "Bearish_Hook": "Bearish_hook"
+            "Bearish_Hook": "Bearish_hook",
+            "Bullish_Pullback": "Bullish_pullback",
+            "Bearish_Pullback": "Bearish_pullback"
         }
         df_new["screener_name"] = df_new["screener_name"].replace(names_map)
 
@@ -292,12 +294,13 @@ def run_scan():
             s = str(val).upper()
             if "READY" in s: return 0  
             if "HOOK" in s: return 1
+            if "PULLBACK" in s: return 2
             # Exact ranking enforced below
-            if "DAILY_2" in s: return 3
-            if "DAILY" in s: return 2
-            if "HOURLY" in s: return 4
-            if "4OS" in s: return 5
-            if "CATALYST" in s: return 6
+            if "DAILY_2" in s: return 4
+            if "DAILY" in s: return 3
+            if "HOURLY" in s: return 5
+            if "4OS" in s: return 6
+            if "CATALYST" in s: return 7
             return 99
             
         df_new["is_bull"] = df_new["screener_name"].str.startswith("Bullish")

@@ -17,8 +17,8 @@ STRATEGIES = {
     "Bearish_Daily_2": True,
     "Bullish_TS_Hourly": False,
     "Bearish_TS_Hourly": False,
-    "Bullish_FUT": True,
-    "Bearish_FUT": True,
+    "Bullish_FUT": False,
+    "Bearish_FUT": False,
     
     # 4OS Strategies
     "Bullish_4os": True,
@@ -26,6 +26,10 @@ STRATEGIES = {
     
     # Momentum & Hooks
     "Bullish_Catalyst": True,
-    "Bullish_Hook": True,
-    "Bearish_Hook": True
+    "Bullish_Hook": False,
+    "Bearish_Hook": False,
+    
+    # Pullbacks
+    "Bullish_Pullback": True,
+    "Bearish_Pullback": True
 }
