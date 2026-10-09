@@ -24,6 +24,9 @@ def check(df_daily: pd.DataFrame, df_weekly: pd.DataFrame, df_monthly: pd.DataFr
         # Monthly Conditions (Skipped if < 20 months of data for new IPO)
         if len(df_monthly) >= 20:
             if not is_bbdnc(df_monthly): return False
+            
+        # MACD requires at least 30 periods to calculate properly
+        if len(df_monthly) >= 30:
             if not is_macd_up(df_monthly): return False
 
         # Weekly Conditions
@@ -63,9 +66,19 @@ def check(df_daily: pd.DataFrame, df_weekly: pd.DataFrame, df_monthly: pd.DataFr
         if current_volume < (avg_volume_20 * 3):
             return False
 
-        # 5. Solid Bullish Candle Structure (No massive upper wicks, close > open)
-        if not is_solid_candle(df_daily, direction='bullish'):
+        # 5. Bullish Structure (Gap ups can have small intraday ranges, so we omit is_solid_candle)
+        # We just want to ensure it didn't collapse intraday ("gap and crap").
+        if current_close < current_open:
             return False
+            
+        daily_high = df_daily['High'].iloc[-1]
+        daily_low = df_daily['Low'].iloc[-1]
+        daily_range = daily_high - daily_low
+        
+        # Ensure the close is in the upper half of the daily range (no massive rejection wick)
+        if daily_range > 0:
+            if (current_close - daily_low) / daily_range < 0.50:
+                return False
         
         return True
 
