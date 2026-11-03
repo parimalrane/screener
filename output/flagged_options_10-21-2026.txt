@@ -1,0 +1,69 @@
+=== 2026-10-21 SCAN ===
+Watchlist: 285 | Signals: 11TMG / 26TMJ / 2J+G
+Bias: 14 bullish-only | 15 bearish-only | 3 mixed
+
+--- LEGEND FOR AI ---
+SIG Types      : TMG = Short Covering | TMJ = Short Build-Up | J+G = Combo
+CONF           : TRUE if underlying stock confirmed the directional flow
+PRICE Δ        : Intraday price change of the options premium
+(+X, ΣY)       : Breadth: +X identical block trades found | Macro Net: Aggregated total OI volume of Y across all strikes
+Context Flags  : [IVR+] = High IV Rank (Sell premium) | [OVRP] = IV > RV (Expensive) | [ER] = Imminent Earnings
+                 [IVR-] = Low IV Rank (Buy premium)   | [UNDP] = IV < RV (Underpriced) | [UVOL] = Unusually High Volume
+---------------------
+
+--- BULLISH DIRECTION ---
+STOCK   | SIG | TYPE  |      MONEY |   STRIKE | EXP        | DTE | CONF |   NOTIONAL |     OI CHG |  PRICE Δ
+MARA    | J+G | Combo |        MIX |    Multi | Multi      |   2 | TRUE |   $149,572 |            |         
+MARA    | TMG | Call  |   OTM 2.7% |     8.00 | 2026-10-23 |   2 | TRUE |   $149,572 |     -9,065 |    +0.06
+MARA    | TMJ | Put   |   ITM 2.7% |     8.00 | 2026-10-30 |   9 | TRUE |    $60,928 |      1,024 |    -0.28
+NVDA    | J+G | Combo |        MIX |    Multi | Multi      |   2 | TRUE |   $226,691 |            |         
+NVDA    | TMG | Call  |   OTM 1.4% |   225.00 | 2026-10-23 |   2 | TRUE |   $226,691 |     -1,897 |    +0.48
+NVDA    | TMJ | Put   |   OTM 3.1% |   215.00 | 2026-10-23 |   2 | TRUE |    $82,170 |      1,660 |    -1.92  (+1, Σ2,776)
+GTLB    | TMG | Call  |   ATM 0.8% |    55.00 | 2026-10-23 |   2 | TRUE |   $207,675 |     -1,170 |    +0.55
+HOOD    | TMG | Call  |   OTM 7.9% |   110.00 | 2026-10-23 |   2 | TRUE |    $20,258 |     -1,307 |    +0.04
+MSTR    | TMG | Call  |   ITM 8.1% |   141.00 | 2026-10-23 |   2 | TRUE | $2,993,835 |     -2,362 |   +10.41  (+3, Σ-9,871)
+NKE     | TMG | Call  |   ATM 0.1% |    37.50 | 2026-11-20 |  30 | FALS |   $224,048 |     -1,273 |    +0.08
+SMCI    | TMG | Call  |   ITM 4.4% |    34.00 | 2026-10-23 |   2 | TRUE |   $208,862 |     -1,085 |    +1.40
+SPCX    | TMG | Call  |  OTM 25.5% |   200.00 | 2027-01-15 |  86 | TRUE |   $445,597 |     -1,121 |    +1.48
+WULF    | TMG | Call  |  OTM 17.6% |    15.00 | 2026-12-18 |  58 | TRUE |   $717,698 |     -5,956 |    +0.25
+ZETA    | TMG | Call  |   OTM 2.6% |    35.00 | 2026-11-20 |  30 | TRUE |   $408,205 |     -1,526 |    +0.65
+AAL     | TMJ | Put   |   OTM 1.9% |    12.00 | 2026-10-23 |   2 | TRUE |   $498,959 |     20,790 |    -0.38
+C       | TMJ | Put   |   OTM 3.1% |   120.00 | 2026-10-23 |   2 | TRUE |    $12,937 |      1,035 |    -0.70
+CBRS    | TMJ | Put   |   OTM 2.5% |   115.00 | 2026-10-23 |   2 | FALS |   $292,725 |      1,301 |    -0.25
+NFLX    | TMJ | Put   |   ATM 0.1% |    65.00 | 2026-10-30 |   9 | FALS |   $619,012 |      4,855 |    -0.38  (+1, Σ17,226)
+
+--- BEARISH DIRECTION ---
+STOCK   | SIG | TYPE  |      MONEY |   STRIKE | EXP        | DTE | CONF |   NOTIONAL |     OI CHG |  PRICE Δ
+AAPL    | TMJ | Call  |   ATM 0.3% |   345.00 | 2026-10-23 |   2 | FALS |   $238,040 |      1,082 |    -0.71  (+2, Σ7,010)
+AVGO    | TMJ | Call  |   OTM 1.4% |   342.50 | 2026-10-23 |   2 | FALS |   $388,842 |      1,374 |    -0.00
+CIFR    | TMJ | Call  |   ITM 1.4% |     9.00 | 2026-10-23 |   2 | FALS |    $89,698 |      2,086 |    -0.02
+CLF     | TMJ | Call  |   ATM 0.2% |    14.00 | 2026-10-30 |   9 | FALS |   $114,956 |      1,982 |    -0.26  (+1, Σ3,915)
+GME     | TMJ | Call  |   OTM 2.7% |    27.00 | 2026-10-30 |   9 | TRUE |   $126,376 |      1,461 |    -0.26  (+1, Σ4,166)
+IREN    | TMJ | Call  |   ATM 0.6% |    28.00 | 2026-10-23 |   2 | FALS |   $496,980 |      5,522 |    -0.30
+MSFT    | TMJ | Call  |   ATM 0.4% |   535.00 | 2026-10-23 |   2 | NEUT |   $540,540 |      1,512 |    -1.77
+MU      | TMJ | Call  |   OTM 4.0% |   950.00 | 2026-10-23 |   2 | FALS |   $503,197 |      1,191 |    -2.00
+NBIS    | TMJ | Call  |   OTM 4.9% |   180.00 | 2026-10-23 |   2 | NEUT |   $272,089 |      1,129 |    -1.21
+ORCL    | TMJ | Call  |   OTM 1.4% |   131.00 | 2026-10-23 |   2 | TRUE |   $386,132 |      2,609 |    -1.00
+PYPL    | TMJ | Call  |   OTM 1.4% |    58.00 | 2026-10-23 |   2 | NEUT |    $38,632 |      1,515 |    -0.01
+QBTS    | TMJ | Call  |   ATM 0.8% |    12.00 | 2026-10-23 |   2 | FALS |    $44,622 |      1,373 |    -0.02
+RIVN    | TMJ | Call  |   ATM 0.3% |    12.50 | 2026-10-23 |   2 | FALS |    $32,813 |      1,727 |    -0.02
+SKHY    | TMJ | Call  |   OTM 1.2% |   145.00 | 2026-10-23 |   2 | FALS |   $426,599 |      1,913 |    -0.92
+UBER    | TMJ | Call  |   OTM 5.0% |    71.00 | 2026-10-30 |   9 | TRUE |    $68,586 |      1,633 |    -0.83
+
+--- SIDEWAYS ---
+STOCK   | DIR     | SIG | TYPE  |      MONEY |   STRIKE | EXP        | DTE | CONF |   NOTIONAL |     OI CHG |  PRICE Δ
+CRWV    | bearish | TMJ | Call  |   ITM 4.6% |    59.00 | 2026-10-23 |   2 | TRUE | $1,031,525 |      2,662 |    -0.17
+CRWV    | BULLISH | TMJ | Put   |   OTM 2.9% |    60.00 | 2026-10-23 |   2 | FALS |   $328,050 |      2,430 |    -0.96
+        |         |     |       |          |            |     |       |      |            | net_signal: | -232
+AMZN    | BULLISH | TMG | Call  |  OTM 10.5% |   290.00 | 2026-11-27 |  37 | NEUT |   $550,677 |     -1,403 |    +0.02
+AMZN    | bearish | TMJ | Call  |   OTM 2.9% |   270.00 | 2026-10-26 |   5 | NEUT |   $291,490 |      2,830 |    -0.51  (+1, Σ4,946)
+        |         |     |       |          |            |     |       |      |            | net_signal: | -3,543
+INTC    | bearish | TMJ | Call  |   ITM 1.0% |    92.00 | 2026-10-23 |   2 | FALS |   $530,472 |      2,139 |    -0.15  (+3, Σ8,692)
+INTC    | BULLISH | TMJ | Put   |   OTM 3.2% |    90.00 | 2026-10-23 |   2 | TRUE |   $227,449 |      2,861 |    -0.90
+        |         |     |       |          |            |     |       |      |            | net_signal: | -5,831
+
+--- TRADINGVIEW WATCHLIST ---
+###BU_Options,MARA,NVDA,GTLB,HOOD,MSTR,NKE,SMCI,SPCX,WULF,ZETA,AAL,C,CBRS,NFLX,
+###BE_Options,AAPL,AVGO,CIFR,CLF,GME,IREN,MSFT,MU,NBIS,ORCL,PYPL,QBTS,RIVN,SKHY,UBER,
+###SIDEWAYS_Options,CRWV,AMZN,INTC,
+
