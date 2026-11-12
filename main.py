@@ -78,10 +78,6 @@ def get_all_tickers() -> dict:
                 except ValueError:
                     pass
                     
-            # Strictly ignore any stock that doesn't have a valid 1-5 rank
-            if rank not in [1, 2, 3, 4, 5]:
-                continue
-                    
             ticker_data[t] = rank
 
         return ticker_data
@@ -144,20 +140,22 @@ def evaluate_stock(ticker: str, zacks_rank: int, bulk_update: pd.DataFrame = Non
             df_daily = df_daily.tail(2500)  # Retain ~10 years exactly
             df_daily.to_csv(hist_file)
         
-        if df_daily.empty or len(df_daily) < 250:
+        is_catalyst_enabled = getattr(config, "STRATEGIES", {}).get("Bullish_Catalyst", True)
+        
+        # Check if stock has enough history
+        min_bars = 25 if is_catalyst_enabled else 250
+        if df_daily.empty or len(df_daily) < min_bars:
             return results
 
         resample_rules = {"Open": "first", "High": "max", "Low": "min", "Close": "last", "Volume": "sum"}
         df_weekly = df_daily.resample("W-FRI").agg(resample_rules).dropna()
         df_monthly = df_daily.resample("ME").agg(resample_rules).dropna()
 
-        if len(df_monthly) < 30 or len(df_weekly) < 35:
-            return results
+        has_long_history = len(df_monthly) >= 30 and len(df_weekly) >= 35
 
-        # Global Volatility Check (Drop boring stocks early)
+        # Global Volatility Check (Drop boring stocks early, unless evaluating Catalyst)
         recent_adr = ((df_daily["High"] - df_daily["Low"]) / df_daily["Close"] * 100).tail(20).mean()
-        if recent_adr < getattr(config, "MIN_ADR_PERCENT", 0):
-            return results
+        adr_passed = recent_adr >= getattr(config, "MIN_ADR_PERCENT", 0)
 
         # Calculate dates correctly because stock.history uses timezone-aware datetime index
         market_date = df_daily.index[-1].strftime("%Y%m%d")
@@ -167,10 +165,17 @@ def evaluate_stock(ticker: str, zacks_rank: int, bulk_update: pd.DataFrame = Non
             # Check the config file to see if the user manually disabled this strategy
             if not getattr(config, "STRATEGIES", {}).get(screen_name, True):
                 continue
+
+            # Catalyst strategy exemptions: exempt from historical ADR check and long-history requirement
+            if screen_name == "Bullish_Catalyst":
+                pass
+            else:
+                if not adr_passed or not has_long_history:
+                    continue
                 
-            # Zacks Rank Filter Logic
+            # Zacks Rank Filter Logic (Catalyst is exempt from Zacks rank 4/5 restriction)
             name_lower = screen_name.lower()
-            if zacks_rank is not None:
+            if zacks_rank is not None and screen_name != "Bullish_Catalyst":
                 if "bullish" in name_lower and zacks_rank in [4, 5]:
                     continue
                 if "bearish" in name_lower and zacks_rank in [1, 2]:
@@ -312,42 +317,8 @@ def run_scan():
         
         # Suppressed detailed pandas table print per user request
 
-        if os.path.exists(csv_file) and os.path.getsize(csv_file) > 0:
-            try:
-                df_existing = pd.read_csv(csv_file, dtype={"marketdate": str})
-                
-                # If CSV is corrupted (e.g. Git conflict markers), start fresh
-                if "screener_name" not in df_existing.columns:
-                    raise ValueError("Corrupt CSV header")
-                    
-                for col in ['tags', 'Probability']:
-                    if col in df_existing.columns:
-                        df_existing = df_existing.drop(columns=[col])
-
-                df_existing["screener_name"] = df_existing["screener_name"].replace(names_map)
-                    
-                # Erase all previous entries for the current market date to ensure a clean overwrite
-                current_date = df_new["marketdate"].iloc[0]
-                df_existing = df_existing[df_existing["marketdate"] != current_date]
-                
-                df_combined = pd.concat([df_existing, df_new], ignore_index=True)
-                
-                # Re-sort the final master csv historically and by strategy
-                df_combined["is_bull"] = df_combined["screener_name"].str.startswith("Bullish")
-                df_combined["strategy_rank"] = df_combined.get("screener_name", pd.Series(dtype=str)).apply(get_strategy_rank)
-                
-                df_combined = df_combined.sort_values(
-                    by=["marketdate", "is_bull", "strategy_rank", "stock"], 
-                    ascending=[False, False, True, True]
-                )
-                df_combined = df_combined.drop(columns=["is_bull", "strategy_rank"])
-                
-                df_combined.to_csv(csv_file, index=False)
-            except Exception as e:
-                print(f"Warning: Rebuilding corrupted database... ({e})")
-                df_new.to_csv(csv_file, index=False)
-        else:
-            df_new.to_csv(csv_file, index=False)
+        # Overwrite output CSV with only today's results (no historical accumulation)
+        df_new.to_csv(csv_file, index=False)
 
         # Print removed per user request
         

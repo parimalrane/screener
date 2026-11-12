@@ -1,0 +1,52 @@
+=== 2026-11-05 SCAN ===
+Watchlist: 348 | Signals: 16TMG / 11TMJ / 1J+G
+Bias: 6 bullish-only | 20 bearish-only | 0 mixed
+
+--- LEGEND FOR AI ---
+SIG Types      : TMG = Short Covering | TMJ = Short Build-Up | J+G = Combo
+CONF           : TRUE if underlying stock confirmed the directional flow
+PRICE Δ        : Intraday price change of the options premium
+(+X, ΣY)       : Breadth: +X identical block trades found | Macro Net: Aggregated total OI volume of Y across all strikes
+Context Flags  : [IVR+] = High IV Rank (Sell premium) | [OVRP] = IV > RV (Expensive) | [ER] = Imminent Earnings
+                 [IVR-] = Low IV Rank (Buy premium)   | [UNDP] = IV < RV (Underpriced) | [UVOL] = Unusually High Volume
+---------------------
+
+--- BULLISH DIRECTION ---
+STOCK   | SIG | TYPE  |      MONEY |   STRIKE | EXP        | DTE | CONF |   NOTIONAL |     OI CHG |  PRICE Δ
+GRAB    | TMG | Call  |  OTM 14.9% |     4.00 | 2028-01-21 | 442 | TRUE |   $584,640 |     -9,135 |    +0.08  (+1, Σ-11,267)
+LULU    | TMG | Call  |   OTM 2.9% |   115.00 | 2026-11-20 |  15 | FALS |   $880,425 |     -2,709 |    +0.08
+WULF    | TMG | Call  |  OTM 98.4% |    20.00 | 2026-12-18 |  43 | FALS |    $19,512 |     -1,084 |    +0.02
+CDE     | TMJ | Put   |   OTM 4.3% |    14.00 | 2026-11-20 |  15 | TRUE |   $185,797 |      3,539 |    -0.07  (+1, Σ5,236)
+CLOV    | TMJ | Put   |   ATM 0.4% |     4.50 | 2026-11-13 |   8 | FALS |   $118,845 |      7,923 |    -0.05
+JBLU    | TMJ | Put   |   ATM 0.3% |     3.50 | 2026-11-06 |   1 | FALS |    $17,700 |      1,770 |    -0.00
+
+--- BEARISH DIRECTION ---
+STOCK   | SIG | TYPE  |      MONEY |   STRIKE | EXP        | DTE | CONF |   NOTIONAL |     OI CHG |  PRICE Δ
+AAPL    | J+G | Combo |        MIX |    Multi | Multi      |  43 | TRUE | $1,823,130 |            |         
+AAPL    | TMG | Put   |   OTM 4.1% |   330.00 | 2026-12-18 |  43 | TRUE | $1,823,130 |     -2,586 |    +2.85  (+2, Σ-5,505)
+AAPL    | TMJ | Call  |   OTM 2.4% |   352.50 | 2026-11-06 |   1 | TRUE |    $68,959 |      1,483 |    -1.51  (+3, Σ5,895)
+BAC     | TMG | Put   |   OTM 3.5% |    48.00 | 2026-11-20 |  15 | TRUE |   $108,230 |     -1,819 |    +0.44
+CIFR    | TMG | Put   |  ITM 44.1% |     8.00 | 2026-11-06 |   1 | TRUE |   $273,776 |     -1,136 |    +0.87  (+1, Σ-2,981)
+DJT     | TMG | Put   |  ITM 36.8% |     5.50 | 2026-11-06 |   1 | TRUE |   $187,884 |     -1,228 |    +0.57
+INTC    | TMG | Put   |  ITM 14.8% |    60.00 | 2026-11-20 |  15 | TRUE | $2,120,040 |     -2,416 |    +4.52  (+2, Σ-8,668)
+IREN    | TMG | Put   |  ITM 10.9% |    20.00 | 2026-12-18 |  43 | TRUE |   $608,850 |     -1,353 |    +1.88
+MARA    | TMG | Put   |  ITM 19.0% |     7.00 | 2026-11-06 |   1 | TRUE |   $261,856 |     -2,338 |    +0.78
+NVDA    | TMG | Put   |  OTM 11.9% |   160.00 | 2027-01-15 |  71 | TRUE | $1,603,440 |     -2,096 |    +4.82
+ORCL    | TMG | Put   |   ITM 4.2% |   120.00 | 2026-11-20 |  15 | TRUE | $3,307,465 |     -3,566 |    +4.78  (+1, Σ-4,612)
+PLTR    | TMG | Put   |   OTM 9.7% |   140.00 | 2026-12-18 |  43 | TRUE | $25,701,780 |    -41,288 |    +4.27
+SMCI    | TMG | Put   |  ITM 10.8% |    30.00 | 2026-11-06 |   1 | TRUE |   $597,093 |     -1,987 |    +1.90
+SPCX    | TMG | Put   |   ITM 9.2% |   135.00 | 2026-11-06 |   1 | TRUE | $7,847,000 |     -6,650 |    +9.44
+TSLA    | TMG | Put   |   ITM 4.7% |   360.00 | 2026-11-20 |  15 | TRUE | $5,294,412 |     -2,015 |   +20.85
+AMZN    | TMJ | Call  |   OTM 2.8% |   267.50 | 2026-11-13 |   8 | TRUE | $1,161,337 |      2,997 |    -1.17  (+2, Σ5,705)
+CVS     | TMJ | Call  |   OTM 4.5% |    85.00 | 2026-11-06 |   1 | FALS |     $8,415 |      1,122 |    -0.01
+ET      | TMJ | Call  |   OTM 4.2% |    20.00 | 2028-01-21 | 442 | TRUE | $2,285,819 |     17,928 |    -0.13
+NEE     | TMJ | Call  |   OTM 4.2% |    92.00 | 2026-11-20 |  15 | TRUE |    $63,189 |      1,071 |    -0.07
+NFLX    | TMJ | Call  |   OTM 2.2% |    67.00 | 2026-11-06 |   1 | TRUE |    $44,936 |      2,192 |    -0.38
+SCHW    | TMJ | Call  |   ATM 0.6% |    92.00 | 2026-11-20 |  15 | TRUE |   $577,044 |      2,106 |    -0.05
+U       | TMJ | Call  |   OTM 4.5% |    51.00 | 2026-11-06 |   1 | FALS |    $72,693 |      1,182 |    -0.24
+
+--- TRADINGVIEW WATCHLIST ---
+###BU_Options,GRAB,LULU,WULF,CDE,CLOV,JBLU,
+###BE_Options,AAPL,BAC,CIFR,DJT,INTC,IREN,MARA,NVDA,ORCL,PLTR,SMCI,SPCX,TSLA,AMZN,CVS,ET,NEE,NFLX,SCHW,U,
+###SIDEWAYS_Options,
+

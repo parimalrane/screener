@@ -1,46 +1,50 @@
 marketdate,screener_name,stock
->>>>>>> c947b1ecdcb184a35cf8df4cc234d812ba612a2e,,
->>>>>>> 2a923c4f3756ae2e3ca7720a0602b49159db5b05,,
->>>>>>> 2a923c4f3756ae2e3ca7720a0602b49159db5b05,,
->>>>>>> 2a923c4f3756ae2e3ca7720a0602b49159db5b05,,
->>>>>>> 2a923c4f3756ae2e3ca7720a0602b49159db5b05,,
->>>>>>> 2a923c4f3756ae2e3ca7720a0602b49159db5b05,,
->>>>>>> 2a923c4f3756ae2e3ca7720a0602b49159db5b05,,
->>>>>>> 2a923c4f3756ae2e3ca7720a0602b49159db5b05,,
->>>>>>> 2a923c4f3756ae2e3ca7720a0602b49159db5b05,,
->>>>>>> 1ab93031604b36b6aa379206427ad922fee1ae31,,
->>>>>>> 1ab93031604b36b6aa379206427ad922fee1ae31,,
->>>>>>> 1ab93031604b36b6aa379206427ad922fee1ae31,,
->>>>>>> 1684a97df09962f02024ea7dbca98e420dde7a67,,
->>>>>>> 1684a97df09962f02024ea7dbca98e420dde7a67,,
-=======,,
-=======,,
-=======,,
-=======,,
-=======,,
-=======,,
-=======,,
-=======,,
-=======,,
-=======,,
-=======,,
-=======,,
-=======,,
-=======,,
-<<<<<<< HEAD,,
-<<<<<<< HEAD,,
-<<<<<<< HEAD,,
-<<<<<<< HEAD,,
-<<<<<<< HEAD,,
-<<<<<<< HEAD,,
-<<<<<<< HEAD,,
-<<<<<<< HEAD,,
-<<<<<<< HEAD,,
-<<<<<<< HEAD,,
-<<<<<<< HEAD,,
-<<<<<<< HEAD,,
-<<<<<<< HEAD,,
-<<<<<<< HEAD,,
+20261111,Bullish_daily,PARR
+20261111,Bullish_daily_2,PARR
+20261111,Bullish_catalyst,BGS
+20261111,Bullish_catalyst,FOSL
+20261111,Bullish_catalyst,SONO
+20261111,Bearish_daily_2,BBW
+20261111,Bearish_daily_2,PZZA
+20261110,Bullish_daily,ARW
+20261110,Bullish_daily,STLD
+20261110,Bullish_daily,WCC
+20261110,Bullish_daily_2,S
+20261110,Bullish_daily_2,STM
+20261110,Bullish_daily_2,TWLO
+20261110,Bullish_catalyst,ZIP
+20261110,Bearish_daily_2,RUN
+20261109,Bullish_daily_2,NLST
+20261109,Bullish_catalyst,CLNE
+20261109,Bullish_catalyst,FROG
+20261109,Bullish_catalyst,LION
+20261104,Bullish_daily,ANET
+20261104,Bullish_daily,CLOV
+20261104,Bullish_daily,EZPW
+20261104,Bullish_daily,IBRX
+20261104,Bullish_daily,TGB
+20261104,Bullish_daily_2,ANET
+20261104,Bullish_daily_2,CLOV
+20261104,Bullish_daily_2,IBRX
+20261104,Bullish_daily_2,IDYA
+20261104,Bullish_daily_2,MTA
+20261104,Bullish_daily_2,PUBM
+20261104,Bullish_daily_2,TGB
+20261104,Bullish_catalyst,CNC
+20261104,Bullish_catalyst,CRCT
+20261104,Bullish_catalyst,HELE
+20261104,Bullish_catalyst,OPRT
+20261104,Bullish_catalyst,RYTM
+20261104,Bullish_catalyst,SMRT
+20261104,Bullish_catalyst,VRDN
+20261104,Bullish_catalyst,WOOF
+20261104,Bullish_catalyst,YOU
+20261103,Bullish_daily_2,LSCC
+20261103,Bullish_catalyst,ACB
+20261103,Bullish_catalyst,EVER
+20261103,Bullish_catalyst,SIBN
+20261103,Bullish_catalyst,XMTR
+20261103,Bearish_daily_2,ZUMZ
 20261102,Bullish_catalyst,NWL
 20261102,Bearish_daily,DQ
 20261102,Bearish_daily_2,AMPX
@@ -90,8 +94,29 @@ marketdate,screener_name,stock
 20261027,Bearish_daily_2,AGNT
 20261027,Bearish_daily_2,BRBR
 20261021,Bullish_catalyst,BRZE
+20261016,Bearish_daily_2,BAK
 20261015,Bullish_daily_2,APPS
+20261015,Bullish_daily_2,APPS
+20261015,Bullish_daily_2,ZYME
+20261015,Bullish_catalyst,VSTM
+20261014,Bearish_daily,PRCT
+20261014,Bearish_daily_2,LMB
+20261014,Bearish_daily_2,MIR
+20261014,Bearish_daily_2,PRCT
+20261014,Bearish_daily_2,PRIM
+20261014,Bearish_daily_2,SID
 20261013,Bullish_catalyst,FIGS
+20261012,Bullish_catalyst,FIGS
+20261009,Bullish_daily,ARQT
+20261009,Bullish_daily,DOCN
+20261009,Bullish_daily,EAT
+20261009,Bullish_daily_2,ARQT
+20261009,Bullish_daily_2,DOCN
+20261009,Bullish_daily_2,EAT
+20261009,Bullish_daily_2,MGTX
+20261009,Bullish_daily_2,RCUS
+20261009,Bullish_daily_2,STLN
+20261009,Bearish_daily_2,AMSC
 20261008,Bullish_daily_2,HPQ
 20261008,Bearish_daily_2,TSSI
 20261007,Bullish_daily_2,MGTX

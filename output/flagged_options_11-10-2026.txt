@@ -1,0 +1,86 @@
+=== 2026-11-10 SCAN ===
+Watchlist: 263 | Signals: 9TMG / 39TMJ / 5J+G
+Bias: 6 bullish-only | 25 bearish-only | 6 mixed
+
+--- LEGEND FOR AI ---
+SIG Types      : TMG = Short Covering | TMJ = Short Build-Up | J+G = Combo
+CONF           : TRUE if underlying stock confirmed the directional flow
+PRICE Δ        : Intraday price change of the options premium
+(+X, ΣY)       : Breadth: +X identical block trades found | Macro Net: Aggregated total OI volume of Y across all strikes
+Context Flags  : [IVR+] = High IV Rank (Sell premium) | [OVRP] = IV > RV (Expensive) | [ER] = Imminent Earnings
+                 [IVR-] = Low IV Rank (Buy premium)   | [UNDP] = IV < RV (Underpriced) | [UVOL] = Unusually High Volume
+---------------------
+
+--- BULLISH DIRECTION ---
+STOCK   | SIG | TYPE  |      MONEY |   STRIKE | EXP        | DTE | CONF |   NOTIONAL |     OI CHG |  PRICE Δ
+META    | J+G | Combo |        MIX |    Multi | Multi      |  66 | NEUT | $16,937,332 |            |         
+META    | TMG | Call  |   OTM 9.1% |   700.00 | 2027-01-15 |  66 | NEUT | $16,937,332 |     -7,887 |    +0.40
+META    | TMJ | Put   |   ATM 1.0% |   635.00 | 2026-11-13 |   3 | NEUT |   $779,055 |      1,002 |    -1.60  (+1, Σ4,091)
+AMC     | TMG | Call  |  ITM 13.3% |     3.00 | 2027-01-15 |  66 | TRUE |    $96,815 |     -1,445 |    +0.05
+RIOT    | TMG | Call  |   ITM 3.2% |    17.50 | 2026-11-13 |   3 | TRUE |   $129,563 |     -1,098 |    +0.11
+STLN    | TMG | Call  |   ITM 7.8% |     4.00 | 2026-11-20 |  10 | TRUE |   $161,627 |     -3,803 |    +0.22
+CLOV    | TMJ | Put   |   ITM 1.4% |     5.00 | 2026-11-20 |  10 | TRUE |   $109,941 |      5,363 |    -0.07
+NOK     | TMJ | Put   |   OTM 3.0% |     8.00 | 2027-04-16 | 157 | TRUE |   $202,004 |      2,010 |    -0.04
+
+--- BEARISH DIRECTION ---
+STOCK   | SIG | TYPE  |      MONEY |   STRIKE | EXP        | DTE | CONF |   NOTIONAL |     OI CHG |  PRICE Δ
+INTC    | J+G | Combo |        MIX |    Multi | Multi      |  66 | TRUE |   $323,907 |            |         
+INTC    | TMG | Put   |  OTM 22.6% |    45.00 | 2027-01-15 |  66 | TRUE |   $323,907 |     -2,138 |    +0.12
+INTC    | TMJ | Call  |   ITM 1.9% |    57.00 | 2026-11-13 |   3 | TRUE |   $273,837 |      1,153 |    -1.17  (+1, Σ3,708)
+NVDA    | J+G | Combo |        MIX |    Multi | Multi      |  17 | TRUE | $9,873,390 |            |         
+NVDA    | TMG | Put   |   ITM 9.5% |   185.00 | 2026-11-27 |  17 | TRUE | $9,873,390 |     -4,974 |    +6.33  (+5, Σ-24,231)
+NVDA    | TMJ | Call  |   OTM 3.6% |   175.00 | 2029-01-19 | 801 | TRUE | $15,786,360 |      3,384 |    -6.22  (+8, Σ22,074)
+AMD     | TMJ | Call  |   ATM 0.9% |   520.00 | 2026-11-11 |   1 | FALS |   $949,580 |      1,202 |    -0.92
+BA      | TMJ | Call  |   OTM 2.4% |   177.50 | 2026-11-13 |   3 | FALS |   $161,280 |      2,016 |    -0.28
+BMNR    | TMJ | Call  |   OTM 2.3% |    18.50 | 2026-11-13 |   3 | TRUE |    $61,333 |      1,348 |    -0.41
+CRWD    | TMJ | Call  |   OTM 1.9% |   230.00 | 2026-11-13 |   3 | TRUE |   $432,150 |      1,005 |    -2.32
+CRWV    | TMJ | Call  |   OTM 2.6% |    50.00 | 2026-11-13 |   3 | TRUE | $1,200,430 |      3,118 |    -0.13  (+1, Σ4,383)
+GME     | TMJ | Call  |   OTM 2.2% |    26.00 | 2026-11-13 |   3 | TRUE |    $25,683 |      1,223 |    -0.15
+GOOGL   | TMJ | Call  |   OTM 4.4% |   300.00 | 2026-11-13 |   3 | TRUE |    $85,314 |      1,446 |    -0.42  (+1, Σ2,470)
+MSFT    | TMJ | Call  |   OTM 3.2% |   550.00 | 2026-11-13 |   3 | TRUE |   $315,990 |      2,899 |    -3.74  (+2, Σ7,068)
+NBIS    | TMJ | Call  |   OTM 4.5% |   140.00 | 2026-11-13 |   3 | TRUE | $4,039,015 |      4,463 |    -3.52
+NKE     | TMJ | Call  |   OTM 3.4% |    40.00 | 2026-11-13 |   3 | TRUE |    $26,897 |      1,537 |    -0.48
+NU      | TMJ | Call  |   OTM 3.5% |    12.50 | 2026-11-13 |   3 | TRUE |   $100,150 |      4,006 |    -0.11
+ORCL    | TMJ | Call  |   OTM 1.7% |   120.00 | 2026-11-13 |   3 | TRUE |   $396,144 |      1,512 |    -1.05
+PCG     | TMJ | Call  |   OTM 2.0% |    13.50 | 2026-11-13 |   3 | FALS |    $15,703 |      1,083 |    -0.03
+PLTR    | TMJ | Call  |   ATM 0.8% |   167.50 | 2026-11-13 |   3 | TRUE |   $465,520 |      1,058 |    -0.88  (+1, Σ2,181)
+RDW     | TMJ | Call  |   OTM 4.6% |     8.50 | 2026-11-13 |   3 | TRUE |   $113,437 |      9,075 |    -0.02  (+1, Σ10,206)
+RIVN    | TMJ | Call  |   OTM 2.2% |    14.00 | 2026-11-13 |   3 | TRUE |    $41,458 |      2,182 |    -0.20
+RKLB    | TMJ | Call  |   OTM 3.7% |    65.00 | 2026-11-13 |   3 | FALS |   $600,692 |      4,568 |    -0.29  (+1, Σ7,182)
+RTX     | TMJ | Call  |   OTM 4.9% |   210.00 | 2026-11-13 |   3 | FALS |    $46,155 |      3,077 |    -0.00
+SE      | TMJ | Call  |   OTM 4.2% |    80.00 | 2026-11-13 |   3 | TRUE |   $154,791 |      1,638 |    -4.13
+SOFI    | TMJ | Call  |   OTM 3.8% |    17.00 | 2026-11-13 |   3 | TRUE |    $32,257 |      2,805 |    -0.18
+UBER    | TMJ | Call  |   OTM 3.5% |    72.50 | 2026-12-18 |  38 | TRUE |   $537,625 |      2,530 |    -0.49
+UPS     | TMJ | Call  |   OTM 2.7% |   114.00 | 2026-11-13 |   3 | NEUT |    $70,704 |      2,946 |    -0.10
+WULF    | TMJ | Call  |   ATM 0.5% |    12.50 | 2026-11-13 |   3 | FALS |   $196,151 |      3,089 |    -0.01
+
+--- SIDEWAYS ---
+STOCK   | DIR     | SIG | TYPE  |      MONEY |   STRIKE | EXP        | DTE | CONF |   NOTIONAL |     OI CHG |  PRICE Δ
+TSLA    | bearish | TMJ | Call  |   OTM 2.7% |   390.00 | 2026-11-13 |   3 | FALS |   $669,980 |      2,410 |    -0.57  (+1, Σ3,644)
+TSLA    | BULLISH | TMJ | Put   |   ATM 0.6% |   377.50 | 2026-11-13 |   3 | TRUE |   $654,885 |      1,134 |    -2.02  (+2, Σ4,356)
+        |         |     |       |          |            |     |       |      |            | net_signal: | +712
+TTD     | BULLISH | TMG | Call  |  ITM 15.7% |    13.00 | 2026-11-20 |  10 | TRUE | $1,322,001 |     -5,154 |    +0.06
+TTD     | bearish | TMJ | Call  |   ITM 2.7% |    15.00 | 2026-12-18 |  38 | FALS |   $150,007 |      1,017 |    -0.14  (+1, Σ5,282)
+        |         |     |       |          |            |     |       |      |            | net_signal: | -128
+AMZN    | BULLISH | J+G | Combo |        MIX |    Multi | Multi      |  10 | TRUE | $2,577,060 |            |         
+AMZN    | BULLISH | TMG | Call  |   ATM 0.3% |   270.00 | 2026-11-20 |  10 | TRUE | $2,577,060 |     -3,708 |    +1.50
+AMZN    | bearish | TMJ | Call  |   OTM 1.5% |   275.00 | 2026-11-11 |   1 | FALS |   $249,219 |      3,665 |    -0.02  (+2, Σ7,764)
+AMZN    | BULLISH | TMJ | Put   |   OTM 4.0% |   260.00 | 2026-11-11 |   1 | TRUE |    $12,144 |      1,056 |    -0.85
+        |         |     |       |          |            |     |       |      |            | net_signal: | -3,000
+AAL     | bearish | TMJ | Call  |   OTM 2.8% |    14.50 | 2026-11-13 |   3 | TRUE |    $64,600 |      5,168 |    -0.08  (+1, Σ6,668)
+AAL     | BULLISH | TMJ | Put   |   ATM 0.8% |    14.00 | 2026-11-13 |   3 | FALS |    $75,936 |      3,616 |    -0.05
+        |         |     |       |          |            |     |       |      |            | net_signal: | -3,052
+SPCX    | BULLISH | J+G | Combo |        MIX |    Multi | Multi      |  10 | TRUE |   $496,799 |            |         
+SPCX    | BULLISH | TMG | Call  |   OTM 4.8% |   150.00 | 2026-11-20 |  10 | TRUE |   $496,799 |     -1,380 |    +0.25  (+1, Σ-3,139)
+SPCX    | bearish | TMJ | Call  |   OTM 4.8% |   150.00 | 2026-11-13 |   3 | FALS | $1,178,221 |      9,314 |    -0.11  (+7, Σ22,047)
+SPCX    | BULLISH | TMJ | Put   |   ATM 0.8% |   142.00 | 2026-11-11 |   1 | TRUE |   $403,609 |      2,333 |    -1.27  (+2, Σ7,119)
+        |         |     |       |          |            |     |       |      |            | net_signal: | -11,789
+AAPL    | bearish | TMJ | Call  |   OTM 1.9% |   355.00 | 2026-11-16 |   6 | TRUE |   $693,608 |      5,008 |    -1.18  (+7, Σ54,313)
+AAPL    | BULLISH | TMJ | Put   |   OTM 2.4% |   340.00 | 2026-11-13 |   3 | FALS |   $369,768 |      3,976 |    -0.04  (+4, Σ14,082)
+        |         |     |       |          |            |     |       |      |            | net_signal: | -40,231
+
+--- TRADINGVIEW WATCHLIST ---
+###BU_Options,META,AMC,RIOT,STLN,CLOV,NOK,
+###BE_Options,INTC,NVDA,AMD,BA,BMNR,CRWD,CRWV,GME,GOOGL,MSFT,NBIS,NKE,NU,ORCL,PCG,PLTR,RDW,RIVN,RKLB,RTX,SE,SOFI,UBER,UPS,WULF,
+###SIDEWAYS_Options,TSLA,TTD,AMZN,AAL,SPCX,AAPL,
+

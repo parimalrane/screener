@@ -1,12 +1,9 @@
-name: Daily Stock Screener
+name: ASTA Screener - Daily 6PM Run
 
 on:
   schedule:
-    # 23:00 UTC = 6:00 PM EST (Mon-Fri)
-    # (During Daylight Saving Time EDT, 6:00 PM is 22:00 UTC)
+    # 23:00 UTC = 6:00 PM EST (Monday to Friday)
     - cron: '0 23 * * 1-5'
-  repository_dispatch:
-    types: [trigger-main-screener]
   workflow_dispatch:
 
 permissions:
@@ -36,7 +33,6 @@ jobs:
           python main.py | tee terminal_output.txt
 
       - name: Send Email Notification
-        continue-on-error: true
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
@@ -47,8 +43,9 @@ jobs:
           body: file://terminal_output.txt
           to: parimalrane@gmail.com
           from: ASTA Screener Bot
+          attachments: output/screener_results.csv
 
-      - name: Commit and Push Appended CSV
+      - name: Commit and Push Results
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
@@ -58,3 +55,4 @@ jobs:
           git add output/screener_results.csv
           git commit -m "Update screener_results.csv [skip ci]" || echo "No changes"
           git push origin main
+
